@@ -80,6 +80,8 @@
     border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px;
   }
   textarea:focus { border-color: var(--accent); }
+  textarea::placeholder { color: var(--muted); opacity: 1; }
+  textarea[aria-invalid="true"] { border-color: var(--erreur); }
   .sous-champ { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin: 8px 0 16px; font-size: .9rem; color: var(--muted); }
   .bouton-texte { background: none; border: 0; padding: 0; font: inherit; color: var(--accent); text-decoration: underline; cursor: pointer; }
   .bouton {
@@ -101,6 +103,7 @@
   .explication { color: var(--muted); margin: 0 0 12px; }
   ol.lignes { margin: 0; padding-left: 1.4em; }
   ol.lignes li { margin: 0 0 10px; padding-left: 4px; }
+  .resultat, .explication, ol.lignes li { overflow-wrap: anywhere; }
   ol.lignes li::marker { font-weight: 700; color: var(--accent); }
   .note { font-size: .9rem; color: var(--muted); margin: 14px 0 0; padding-top: 12px; border-top: 1px dashed var(--line); }
   .situations { margin-top: 16px; }
@@ -127,6 +130,8 @@
   summary { cursor: pointer; font-weight: 700; }
   details ul { padding-left: 1.2em; }
   footer { border-top: 1px solid var(--line); margin-top: 24px; padding: 20px 0 40px; color: var(--muted); font-size: .9rem; }
+  .visuellement-cache { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
   [hidden] { display: none !important; }
 </style>
 </head>
@@ -159,11 +164,12 @@
       <button type="submit" class="bouton" id="btn-envoyer">Obtenir mon mini-cadrage</button>
       <p class="message-erreur" id="message-erreur" role="alert"></p>
       <p class="mention-ia">Réponse générée par IA. Vous échangez avec une IA, pas avec Simo.</p>
+      <p class="mention-ia" id="mention-transfert" hidden>En IA en direct, votre texte est transmis à Anthropic (États-Unis) pour générer la réponse. <a href="#titre-transparence">En savoir plus</a></p>
     </form>
     <noscript><p class="message-erreur">Activez JavaScript pour obtenir un mini-cadrage.</p></noscript>
   </section>
 
-  <section class="carte resultat" id="resultat" aria-live="polite" aria-labelledby="titre-resultat" tabindex="-1" hidden>
+  <section class="carte resultat" id="resultat" aria-labelledby="titre-resultat" tabindex="-1" hidden>
     <span class="etiquette" id="etiquette"></span>
     <h2 id="titre-resultat">Votre mini-cadrage</h2>
     <p class="explication" id="explication" hidden></p>
@@ -181,7 +187,7 @@
       <p>On regarde ensemble votre cas, vos données et le premier MVP à lancer.</p>
     </div>
     <div>
-      <a class="bouton" id="btn-calcom" href="{{LIEN_CALCOM}}" target="_blank" rel="noopener noreferrer">Réserver 15 min avec Simo</a>
+      <a class="bouton" id="btn-calcom" target="_blank" rel="noopener noreferrer">Réserver 15 min avec Simo<span class="visuellement-cache"> (nouvel onglet)</span></a>
       <span class="attente" id="calcom-attente" hidden>Lien de prise de rendez-vous bientôt disponible.</span>
     </div>
   </section>
@@ -216,10 +222,12 @@
       <summary>Vos données</summary>
       <ul>
         <li>Votre texte sert uniquement à produire la réponse. Cette page ne le stocke pas et ne le réutilise pas.</li>
-        <li>En mode IA en direct, il est transmis à Anthropic, fournisseur du modèle, pour générer la réponse. En mode secours, rien ne quitte votre navigateur.</li>
-        <li>Anti-abus : une empreinte pseudonymisée de votre adresse IP est conservée 48 heures au plus, uniquement pour limiter le nombre de demandes.</li>
+        <li>En mode secours, rien de ce que vous écrivez ne quitte votre navigateur.</li>
+        <li>En IA en direct uniquement : votre texte passe par un relais technique (Cloudflare) et il est transmis à Anthropic, fournisseur du modèle, pour générer la réponse. Une empreinte pseudonymisée de votre adresse IP est conservée 48 heures au plus, uniquement pour limiter le nombre de demandes.</li>
+        <li>Hébergement : GitHub, qui héberge cette page, enregistre l'adresse IP des visiteurs pour la sécurité de son service.</li>
+        <li>GitHub, Cloudflare et Anthropic sont situés aux États-Unis : ces données techniques peuvent y être traitées.</li>
         <li>Responsable du traitement : Mohammed Bouchaanana. Base légale : intérêt légitime (répondre à votre demande, prévenir les abus).</li>
-        <li>Vos droits : accès, rectification, effacement, opposition. Écrivez à <a href="mailto:m.bouchaanana@gmail.com">m.bouchaanana@gmail.com</a>. Vous pouvez aussi saisir la CNIL (cnil.fr).</li>
+        <li>Vos droits : accès, rectification, effacement, limitation, opposition. Écrivez à <a href="mailto:m.bouchaanana@gmail.com">m.bouchaanana@gmail.com</a>. Vous pouvez aussi saisir la CNIL (cnil.fr).</li>
         <li>Pas de cookies, pas de traceurs.</li>
       </ul>
     </details>
@@ -271,6 +279,8 @@ const TEXTES = {
   secoursIndisponible: "L'IA en direct est momentanément indisponible (limite du jour atteinte ou incident). Voici le mini-cadrage préparé qui correspond le mieux à votre description.",
   secoursChoisi: "Mini-cadrage préparé à l'avance pour cette situation type. Il ne tient pas compte du détail de votre texte.",
   aucuneSituation: "Je n'ai pas reconnu de situation type dans votre description. Choisissez celle qui se rapproche le plus de la vôtre :",
+  prefixeNonActive: "L'IA en direct n'est pas encore activée.",
+  prefixeIndisponible: "L'IA en direct est momentanément indisponible.",
   autreSituation: "Voir une autre situation type :",
   horsSujet: "Je réponds uniquement sur les programmes fidélité et le CRM. Décrivez votre programme (secteur, nombre de membres, problème principal) pour recevoir un mini-cadrage.",
   noteIA: "Brouillon indicatif, non relu par Simo. Chiffres et pistes à valider avec vos données.",
@@ -298,7 +308,7 @@ const SITUATIONS = [
   {
     id: "remises",
     titre: "Remises coûteuses, rentabilité incertaine",
-    motsCles: ["remise", "promo", "coupon", "marge", "rentab", "cout", "roi", "reduction", "aubaine", "moteur promo", "avantages", "budget", "offres", "bon d'achat", "cagnotte"],
+    motsCles: ["remise", "promo", "coupon", "marge", "rentab", "cout", "=roi", "reduction", "aubaine", "avantages", "budget", "offres", "bon d'achat", "bons d'achat", "cagnotte"],
     cadrage: {
       enjeu: "remises et avantages pèsent sur la marge, sans preuve claire de leur effet sur la fréquence d'achat.",
       cas_recommande: "personnaliser les offres selon l'appétence de chaque membre (le bon avantage au bon client), en mesurant le gain réel par rapport à l'offre standard.",
@@ -310,7 +320,7 @@ const SITUATIONS = [
   {
     id: "donnees",
     titre: "Données clients dispersées ou en doublon",
-    motsCles: ["doublon", "dedoublonn", "rcu", "referentiel", "donnee", "qualite", "unifi", "dispers", "silo", "fusion", "cdp", "base client", "vision client", "omnicanal", "fiabilis"],
+    motsCles: ["doublon", "dedoublonn", "=rcu", "referentiel", "donnees clients", "qualite des donnees", "qualite de la donnee", "unifi", "dispers", "silo", "fusion", "=cdp", "base client", "vision client", "omnicanal", "fiabilis"],
     cadrage: {
       enjeu: "un même client existe plusieurs fois (magasin, web, appli) ; ciblage, cumul de points et reporting sont faussés.",
       cas_recommande: "un dédoublonnage du référentiel client unique (RCU) assisté par IA, qui propose les fusions avec un score de confiance et laisse les cas douteux à un humain.",
@@ -322,7 +332,7 @@ const SITUATIONS = [
   {
     id: "service-client",
     titre: "Service client débordé",
-    motsCles: ["service client", "sav", "ticket", "reclamation", "support", "conseiller", "zendesk", "centre de contact", "centre d'appel", "appels", "delai de reponse", "demandes clients", "chatbot"],
+    motsCles: ["service client", "=sav", "tickets", "ticketing", "reclamation", "support client", "conseiller", "zendesk", "centre de contact", "centre d'appel", "appels", "delai de reponse", "demandes clients", "chatbot"],
     cadrage: {
       enjeu: "le service client absorbe de plus en plus de demandes sur le programme (points, avantages, carte), au détriment des délais et de la satisfaction.",
       cas_recommande: "un agent IA qui trie les demandes, propose une réponse au conseiller et résume l'historique client ; le conseiller valide avant envoi.",
@@ -334,7 +344,7 @@ const SITUATIONS = [
   {
     id: "engagement",
     titre: "Engagement en baisse, messages peu lus",
-    motsCles: ["engagement", "email", "e-mail", "newsletter", "ouverture", "clic", "push", "notification", "contenu", "campagne", "personnalis", "segment", "avis client", "sms", "marketing automation", "pression marketing"],
+    motsCles: ["engagement", "email", "e-mail", "newsletter", "ouverture", "=clic", "=clics", "=push", "notification", "contenu", "campagne", "personnalis", "segment", "avis client", "=sms", "marketing automation", "pression marketing"],
     cadrage: {
       enjeu: "vos emails et notifications sont de moins en moins ouverts ; le programme perd sa place dans la relation client.",
       cas_recommande: "une segmentation par IA (centres d'intérêt, moment d'achat), couplée à des contenus générés dans votre charte et relus avant envoi.",
@@ -365,6 +375,14 @@ function normaliser(texte) {
   return texte.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[’`]/g, "'");
 }
 
+// Un mot-clé doit commencer un mot (« cout » trouve « coûtent », pas « écouter ») ;
+// précédé de « = », il doit être un mot entier (« roi » ne trouve ni « trois » ni « croissance »).
+function motCleTrouve(texte, motCle) {
+  const entier = motCle.startsWith("=");
+  const mot = normaliser(entier ? motCle.slice(1) : motCle).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp("(^|[^a-z0-9])" + mot + (entier ? "($|[^a-z0-9])" : "")).test(texte);
+}
+
 function situationLaPlusProche(description) {
   const texte = normaliser(description);
   let meilleure = null;
@@ -372,7 +390,7 @@ function situationLaPlusProche(description) {
   for (const situation of SITUATIONS) {
     let score = 0;
     for (const mot of situation.motsCles) {
-      if (texte.includes(normaliser(mot))) score += 1;
+      if (motCleTrouve(texte, mot)) score += 1;
     }
     if (score > meilleurScore) { meilleurScore = score; meilleure = situation; }
   }
@@ -431,7 +449,8 @@ function afficherPuces(intitule, idActif) {
 function montrerResultat() {
   blocResultat.hidden = false;
   blocResultat.focus({ preventScroll: true });
-  blocResultat.scrollIntoView({ behavior: "smooth", block: "start" });
+  const sansAnimation = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  blocResultat.scrollIntoView({ behavior: sansAnimation ? "auto" : "smooth", block: "start" });
 }
 
 function afficherSecours(situation, texteExplication) {
@@ -447,12 +466,12 @@ function afficherSecours(situation, texteExplication) {
   montrerResultat();
 }
 
-function afficherAucuneSituation(texteExplication) {
+function afficherAucuneSituation(prefixe) {
   viderResultat();
   etiquette.className = "etiquette secours";
   etiquette.textContent = TEXTES.etiquetteSecours;
   $("titre-resultat").textContent = "Choisissez une situation type";
-  explication.textContent = (texteExplication ? texteExplication + " " : "") + TEXTES.aucuneSituation;
+  explication.textContent = prefixe + " " + TEXTES.aucuneSituation;
   explication.hidden = false;
   note.hidden = true;
   afficherPuces("Situations types :", null);
@@ -482,10 +501,10 @@ function afficherHorsSujet() {
   montrerResultat();
 }
 
-function secoursPour(description, texteExplication) {
+function secoursPour(description, indisponible) {
   const situation = situationLaPlusProche(description);
-  if (situation) afficherSecours(situation, texteExplication);
-  else afficherAucuneSituation(texteExplication);
+  if (situation) afficherSecours(situation, indisponible ? TEXTES.secoursIndisponible : TEXTES.secoursNonActive);
+  else afficherAucuneSituation(indisponible ? TEXTES.prefixeIndisponible : TEXTES.prefixeNonActive);
 }
 
 /* ===== Appel au relais (IA en direct) ===== */
@@ -519,15 +538,21 @@ function majCompteur() {
   compteur.textContent = champ.value.length + " / " + REGLAGES.MAX_CARACTERES;
 }
 
+function signalerErreur(message) {
+  messageErreur.textContent = message;
+  champ.setAttribute("aria-invalid", message ? "true" : "false");
+  if (message) champ.focus();
+}
+
 champ.addEventListener("input", () => {
   majCompteur();
-  if (messageErreur.textContent) messageErreur.textContent = "";
+  if (messageErreur.textContent) signalerErreur("");
 });
 
 $("btn-exemple").addEventListener("click", () => {
   champ.value = EXEMPLE;
   majCompteur();
-  messageErreur.textContent = "";
+  signalerErreur("");
   champ.focus();
 });
 
@@ -536,19 +561,17 @@ $("form-cadrage").addEventListener("submit", async (evenement) => {
   if (envoiEnCours) return;
   const description = champ.value.trim();
   if (description.length < REGLAGES.MIN_CARACTERES) {
-    messageErreur.textContent = TEXTES.tropCourt;
-    champ.focus();
+    signalerErreur(TEXTES.tropCourt);
     return;
   }
   if (description.length > REGLAGES.MAX_CARACTERES) {
-    messageErreur.textContent = TEXTES.tropLong;
-    champ.focus();
+    signalerErreur(TEXTES.tropLong);
     return;
   }
-  messageErreur.textContent = "";
+  signalerErreur("");
 
   if (!REGLAGES.RELAIS_URL) {
-    secoursPour(description, TEXTES.secoursNonActive);
+    secoursPour(description, false);
     return;
   }
 
@@ -560,7 +583,7 @@ $("form-cadrage").addEventListener("submit", async (evenement) => {
     const resultat = await demanderIA(description);
     if (resultat.type === "ia") afficherIA(resultat.cadrage);
     else if (resultat.type === "hors_sujet") afficherHorsSujet();
-    else secoursPour(description, TEXTES.secoursIndisponible);
+    else secoursPour(description, true);
   } finally {
     envoiEnCours = false;
     btnEnvoyer.disabled = false;
@@ -583,6 +606,7 @@ $("form-cadrage").addEventListener("submit", async (evenement) => {
   }
 })();
 
+$("mention-transfert").hidden = !REGLAGES.RELAIS_URL;
 majCompteur();
 </script>
 </body>
