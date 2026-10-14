@@ -1,0 +1,12 @@
+# Profil
+- Mohammed « Simo » Bouchaanana, consultant freelance, Île-de-France, full remote recherché.
+- Positionnement : PO IA appliquée au CRM et à la fidélité. Je conçois et livre des cas d'usage IA du cadrage au déploiement, avec des outils IA et no-code.
+- Socle : 11 ans de projets digitaux, dont CRM, fidélité et donnée client.
+  - SGM (2025-) : plateforme client omnicanale : référentiel client unique, programme de fidélité et moteur promo, marketing automation, service client, interfaces encaissement/e-commerce (Comarch CLM, Splio, Zendesk, API).
+  - B&B Hotels (2024-2025) : refonte du parcours client du programme de fidélité (specs, UX, sprints, recette, déploiement ; Salesforce, Imagino).
+  - Pathé (2023-2024) : programme d'engagement, Espace Client et tunnel Cinépass connectés à Salesforce (PO, US, recette).
+  - Particeep (2022-2023) : déploiement SaaS fintech en marque blanche via API (Arkea, MetLife, Wakam).
+  - AbbVie (2017-2018) : évolution du CRM interne.
+  - Renault (2013-2017) : management de projet.
+- Formation : ingénieur UTBM, Master Management de projet IAE Paris, PSPO I (2024). Anglais courant (TOEIC 965).
+- Méthodes : Scrum, cycle en V, approche valeur, conduite du changement.
