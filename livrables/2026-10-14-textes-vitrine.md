@@ -42,19 +42,24 @@
 3. Si vous voulez aller plus loin, on en parle 15 minutes.
 
 ### Qui est derrière
-Simo Bouchaanana, consultant freelance. Il conçoit et livre des cas d'usage IA, du cadrage au déploiement.
-- **11 ans de projets digitaux**, dont CRM, fidélité et donnée client : plateforme client omnicanale, refonte de parcours fidélité, programme d'engagement.
-- **Des outils IA déjà utilisés en entreprise** : une app SAV interne et un outil de ticketing service client, créés avec des outils IA chez un client du retail.
-- **Cette page elle-même** : elle s'appuie sur son twin IA (base de connaissances, 4 agents, garde-fous), construit sans coder.
+Simo Bouchaanana, consultant indépendant. Il conçoit et livre des cas d'usage IA, du cadrage au déploiement. 11 ans de projets digitaux, dont CRM, fidélité et donnée client, dans le retail, l'hôtellerie, le cinéma, la fintech et l'énergie.
+
+Preuves IA :
+1. **Snapforge Lab** : une activité d'audit et de correction d'apps, avec une machine de prospection pilotée par IA (détection de leads, audit, scoring, emails personnalisés).
+2. **Un business IA piloté par une équipe d'agents IA** : moteur d'audit, rapport, landing page.
+3. **Chez un client du retail** : une app SAV interne et un outil de ticketing service client, créés avec des outils IA.
+4. **Cette page elle-même** : elle s'appuie sur son twin IA (base de connaissances, 4 agents, garde-fous), construit sans coder.
 
 ### Transparence et données
 - **Une IA, pas Simo** : la réponse est générée par une IA (Claude, d'Anthropic) à partir de votre texte. Elle s'affiche sans relecture humaine et peut contenir des erreurs.
 - **Votre texte** : il sert uniquement à produire la réponse. Cette page ne le stocke pas et ne le réutilise pas. En mode IA en direct, il est transmis à Anthropic, fournisseur du modèle, pour générer la réponse. En mode secours, rien ne quitte votre navigateur.
 - **Anti-abus** : une empreinte pseudonymisée de votre adresse IP est conservée 48 heures au plus, uniquement pour limiter le nombre de demandes.
+- **Base légale et responsable** : Mohammed Bouchaanana, responsable du traitement ; intérêt légitime (répondre à votre demande, prévenir les abus).
+- **Vos droits** : accès, rectification, effacement, opposition. Écrivez à m.bouchaanana@gmail.com. Vous pouvez aussi saisir la CNIL (cnil.fr).
 - **Pas de cookies, pas de traceurs.**
 
 ### Mentions légales
-- **Éditeur et directeur de la publication** : Mohammed Bouchaanana, consultant indépendant, {{STATUT_ET_SIRET}}, {{ADRESSE_PRO}}. Contact : {{EMAIL_CONTACT}}.
+- **Éditeur et directeur de la publication** : Mohammed Bouchaanana, consultant indépendant. Contact : m.bouchaanana@gmail.com.
 - **Hébergement de la page** : GitHub Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, États-Unis.
 - **Relais technique de l'IA** : Cloudflare, Inc., 101 Townsend Street, San Francisco, CA 94107, États-Unis.
 
@@ -124,9 +129,6 @@ Ces consignes sont envoyées à Claude Haiku à chaque demande. Le visiteur ne l
 >
 > Cas d'usage de référence : segmentation et scoring (churn, appétence, valeur client) ; personnalisation des offres et du moteur promo ; agents IA service client (tri, réponses suggérées, résumé de tickets) ; qualité de la donnée (dédoublonnage du RCU) ; génération de contenus CRM dans la charte ; analyse des retours clients (avis, verbatims SAV).
 
-## D. Informations manquantes (à me donner avant la mise en ligne)
-- {{LIEN_CALCOM}} : ton lien Cal.com 15 min (déjà prévu).
-- {{STATUT_ET_SIRET}} : ton statut (ex. entrepreneur individuel) et ton SIRET.
-- {{ADRESSE_PRO}} : une adresse professionnelle (ou de domiciliation).
-- {{EMAIL_CONTACT}} : l'adresse email à afficher dans les mentions légales.
-- Faut-il citer des noms de clients (B&B Hotels, Pathé…) dans « Qui est derrière » ? Par défaut, je ne cite que des secteurs.
+## D. Informations manquantes
+- {{LIEN_CALCOM}} : ton lien Cal.com 15 min, à fournir avant la mise en ligne.
+- Mentions légales : voir les points signalés dans le compte rendu de construction (adresse, téléphone).

@@ -1,0 +1,9 @@
+{
+  "name": "simo-vitrine",
+  "private": true,
+  "type": "module",
+  "description": "Page vitrine « Mini-cadrage IA » et son relais Cloudflare",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs"
+  }
+}

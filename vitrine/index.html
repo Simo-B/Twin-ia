@@ -1,0 +1,589 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src https://*.workers.dev; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="description" content="Décrivez votre programme fidélité et recevez un mini-cadrage IA en 5 lignes : l'enjeu, le cas d'usage à lancer en premier et un MVP en 4 semaines.">
+<title>Mini-cadrage IA fidélité · Simo Bouchaanana</title>
+<style>
+  :root {
+    --bg: #f7f5f0;
+    --surface: #ffffff;
+    --ink: #14213d;
+    --muted: #556075;
+    --line: #e2ddd1;
+    --accent: #0f766e;
+    --accent-hover: #0b5f58;
+    --accent-ink: #ffffff;
+    --ia-bg: #e3f3ef;
+    --ia-ink: #0b5a53;
+    --secours-bg: #fff2dc;
+    --secours-ink: #7a4a00;
+    --erreur: #b42318;
+    --focus: #2563eb;
+    --radius: 14px;
+    --shadow: 0 1px 2px rgba(20, 33, 61, .06), 0 6px 24px rgba(20, 33, 61, .06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f141d;
+      --surface: #171e2a;
+      --ink: #e8ecf3;
+      --muted: #a4aec0;
+      --line: #2a3446;
+      --accent: #2cc4b0;
+      --accent-hover: #5fd8c8;
+      --accent-ink: #052521;
+      --ia-bg: #12352f;
+      --ia-ink: #9ee9dc;
+      --secours-bg: #3a2a0f;
+      --secours-ink: #f5cf8a;
+      --erreur: #ff8a80;
+      --focus: #7aa7ff;
+      --shadow: none;
+    }
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  a { color: var(--accent); }
+  a:hover { color: var(--accent-hover); }
+  :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 6px; }
+  .conteneur { max-width: 760px; margin: 0 auto; padding: 0 16px; }
+  .lien-evitement { position: absolute; left: -9999px; }
+  .lien-evitement:focus { left: 16px; top: 8px; background: var(--surface); padding: 8px 12px; z-index: 10; }
+
+  header.bandeau { border-bottom: 1px solid var(--line); background: var(--surface); }
+  header.bandeau .conteneur { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; padding-top: 14px; padding-bottom: 14px; }
+  .nom { font-weight: 700; letter-spacing: -.01em; }
+  .role { color: var(--muted); font-size: .95rem; }
+
+  .accroche { padding: 48px 0 24px; }
+  .accroche h1 { font-size: clamp(1.9rem, 5vw, 2.6rem); line-height: 1.15; letter-spacing: -.02em; margin: 0 0 14px; }
+  .accroche p { font-size: 1.12rem; color: var(--muted); margin: 0; max-width: 60ch; }
+
+  .carte { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 24px; margin: 0 0 24px; }
+  @media (max-width: 480px) { .carte { padding: 18px; } .accroche { padding-top: 32px; } }
+
+  label.titre-champ { display: block; font-weight: 700; font-size: 1.05rem; margin-bottom: 4px; }
+  .aide { color: var(--muted); font-size: .95rem; margin: 0 0 12px; }
+  textarea {
+    width: 100%; min-height: 140px; resize: vertical;
+    font: inherit; color: var(--ink); background: var(--bg);
+    border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px;
+  }
+  textarea:focus { border-color: var(--accent); }
+  .sous-champ { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin: 8px 0 16px; font-size: .9rem; color: var(--muted); }
+  .bouton-texte { background: none; border: 0; padding: 0; font: inherit; color: var(--accent); text-decoration: underline; cursor: pointer; }
+  .bouton {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    min-height: 48px; padding: 12px 22px; border-radius: 10px; border: 0;
+    background: var(--accent); color: var(--accent-ink); font: inherit; font-weight: 700;
+    cursor: pointer; text-decoration: none;
+  }
+  .bouton:hover { background: var(--accent-hover); color: var(--accent-ink); }
+  .bouton[disabled] { opacity: .65; cursor: wait; }
+  .bouton[aria-disabled="true"] { opacity: .55; cursor: not-allowed; }
+  .mention-ia { font-size: .9rem; color: var(--muted); margin: 12px 0 0; }
+  .message-erreur { color: var(--erreur); font-size: .95rem; margin: 10px 0 0; min-height: 1.2em; }
+
+  .etiquette { display: inline-block; font-size: .85rem; font-weight: 700; padding: 4px 10px; border-radius: 999px; margin-bottom: 10px; }
+  .etiquette.ia { background: var(--ia-bg); color: var(--ia-ink); }
+  .etiquette.secours { background: var(--secours-bg); color: var(--secours-ink); }
+  .resultat h2 { font-size: 1.25rem; margin: 0 0 6px; }
+  .explication { color: var(--muted); margin: 0 0 12px; }
+  ol.lignes { margin: 0; padding-left: 1.4em; }
+  ol.lignes li { margin: 0 0 10px; padding-left: 4px; }
+  ol.lignes li::marker { font-weight: 700; color: var(--accent); }
+  .note { font-size: .9rem; color: var(--muted); margin: 14px 0 0; padding-top: 12px; border-top: 1px dashed var(--line); }
+  .situations { margin-top: 16px; }
+  .situations p { margin: 0 0 8px; font-size: .95rem; }
+  .puces { display: flex; flex-wrap: wrap; gap: 8px; }
+  .puce { font: inherit; font-size: .9rem; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; cursor: pointer; }
+  .puce:hover, .puce[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+
+  .appel { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; }
+  .appel h2 { margin: 0 0 4px; font-size: 1.25rem; }
+  .appel p { margin: 0; color: var(--muted); }
+  .appel .attente { display: block; font-size: .85rem; color: var(--muted); margin-top: 6px; }
+
+  section.bloc { padding: 8px 0 16px; }
+  section.bloc h2 { font-size: 1.3rem; margin: 16px 0 12px; letter-spacing: -.01em; }
+  ol.etapes { list-style: none; counter-reset: etape; padding: 0; margin: 0; display: grid; gap: 12px; }
+  @media (min-width: 640px) { ol.etapes { grid-template-columns: repeat(3, 1fr); } }
+  ol.etapes li { counter-increment: etape; display: flex; gap: 12px; align-items: flex-start; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; }
+  ol.etapes li::before { content: counter(etape); flex: 0 0 28px; display: grid; place-items: center; height: 28px; border-radius: 50%; background: var(--ia-bg); color: var(--ia-ink); font-weight: 700; line-height: 1; }
+  ul.preuves { padding-left: 1.2em; margin: 8px 0 0; }
+  ul.preuves li { margin-bottom: 8px; }
+  .petit { font-size: .95rem; color: var(--muted); }
+  details { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 16px; margin: 0 0 12px; }
+  summary { cursor: pointer; font-weight: 700; }
+  details ul { padding-left: 1.2em; }
+  footer { border-top: 1px solid var(--line); margin-top: 24px; padding: 20px 0 40px; color: var(--muted); font-size: .9rem; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<a class="lien-evitement" href="#formulaire">Aller au formulaire</a>
+
+<header class="bandeau">
+  <div class="conteneur">
+    <span class="nom">Simo Bouchaanana</span>
+    <span class="role">PO IA appliquée au CRM et à la fidélité</span>
+  </div>
+</header>
+
+<main class="conteneur">
+  <section class="accroche" aria-labelledby="titre-page">
+    <h1 id="titre-page">Votre programme fidélité, vu par l'IA, en 5&nbsp;lignes.</h1>
+    <p>Décrivez votre programme. Recevez un mini-cadrage IA : l'enjeu, le cas d'usage à lancer en premier et un MVP en 4&nbsp;semaines. Gratuit, sans inscription.</p>
+  </section>
+
+  <section class="carte" id="formulaire" aria-label="Demander un mini-cadrage">
+    <form id="form-cadrage" novalidate>
+      <label class="titre-champ" for="description">Décrivez votre programme fidélité</label>
+      <p class="aide" id="aide-description">Secteur, nombre de membres, problème principal, outils en place. N'indiquez ni données personnelles ni informations confidentielles.</p>
+      <textarea id="description" name="description" maxlength="1200" aria-describedby="aide-description compteur message-erreur"
+        placeholder="Ex. : enseigne de mode, 2 M de membres, 60 % d'inactifs, CRM Salesforce. Objectif : réactiver sans brader la marge."></textarea>
+      <div class="sous-champ">
+        <button type="button" class="bouton-texte" id="btn-exemple">Essayer avec un exemple</button>
+        <span id="compteur" aria-live="off">0 / 1200</span>
+      </div>
+      <button type="submit" class="bouton" id="btn-envoyer">Obtenir mon mini-cadrage</button>
+      <p class="message-erreur" id="message-erreur" role="alert"></p>
+      <p class="mention-ia">Réponse générée par IA. Vous échangez avec une IA, pas avec Simo.</p>
+    </form>
+    <noscript><p class="message-erreur">Activez JavaScript pour obtenir un mini-cadrage.</p></noscript>
+  </section>
+
+  <section class="carte resultat" id="resultat" aria-live="polite" aria-labelledby="titre-resultat" tabindex="-1" hidden>
+    <span class="etiquette" id="etiquette"></span>
+    <h2 id="titre-resultat">Votre mini-cadrage</h2>
+    <p class="explication" id="explication" hidden></p>
+    <ol class="lignes" id="lignes"></ol>
+    <p class="note" id="note">Brouillon indicatif, non relu par Simo. Chiffres et pistes à valider avec vos données.</p>
+    <div class="situations" id="situations">
+      <p id="titre-situations">Voir une autre situation type :</p>
+      <div class="puces" id="puces"></div>
+    </div>
+  </section>
+
+  <section class="carte appel" aria-labelledby="titre-appel">
+    <div>
+      <h2 id="titre-appel">Aller plus loin en 15&nbsp;minutes</h2>
+      <p>On regarde ensemble votre cas, vos données et le premier MVP à lancer.</p>
+    </div>
+    <div>
+      <a class="bouton" id="btn-calcom" href="{{LIEN_CALCOM}}" target="_blank" rel="noopener noreferrer">Réserver 15 min avec Simo</a>
+      <span class="attente" id="calcom-attente" hidden>Lien de prise de rendez-vous bientôt disponible.</span>
+    </div>
+  </section>
+
+  <section class="bloc" aria-labelledby="titre-etapes">
+    <h2 id="titre-etapes">Comment ça marche</h2>
+    <ol class="etapes">
+      <li>Vous décrivez votre programme fidélité.</li>
+      <li>L'IA propose un mini-cadrage en 5 lignes.</li>
+      <li>Si vous voulez aller plus loin, on en parle 15 minutes.</li>
+    </ol>
+  </section>
+
+  <section class="bloc" aria-labelledby="titre-qui">
+    <h2 id="titre-qui">Qui est derrière</h2>
+    <p>Simo Bouchaanana, consultant indépendant. Il conçoit et livre des cas d'usage IA, du cadrage au déploiement. 11 ans de projets digitaux, dont CRM, fidélité et donnée client, dans le retail, l'hôtellerie, le cinéma, la fintech et l'énergie.</p>
+    <ul class="preuves">
+      <li><strong>Snapforge Lab</strong> : une activité d'audit et de correction d'apps, avec une machine de prospection pilotée par IA (détection de leads, audit, scoring, emails personnalisés).</li>
+      <li><strong>Un business IA piloté par une équipe d'agents IA</strong> : moteur d'audit, rapport, landing page.</li>
+      <li><strong>Chez un client du retail</strong> : une app SAV interne et un outil de ticketing service client, créés avec des outils IA.</li>
+      <li><strong>Cette page elle-même</strong> : elle s'appuie sur son twin IA (base de connaissances, 4 agents, garde-fous), construit sans coder.</li>
+    </ul>
+  </section>
+
+  <section class="bloc" aria-labelledby="titre-transparence">
+    <h2 id="titre-transparence">Transparence et données</h2>
+    <details>
+      <summary>Une IA, pas Simo</summary>
+      <p>La réponse est générée par une IA (Claude, d'Anthropic) à partir de votre texte. Elle s'affiche sans relecture humaine et peut contenir des erreurs. Les mini-cadrages de secours, eux, ont été préparés à l'avance par IA et relus par Simo.</p>
+    </details>
+    <details>
+      <summary>Vos données</summary>
+      <ul>
+        <li>Votre texte sert uniquement à produire la réponse. Cette page ne le stocke pas et ne le réutilise pas.</li>
+        <li>En mode IA en direct, il est transmis à Anthropic, fournisseur du modèle, pour générer la réponse. En mode secours, rien ne quitte votre navigateur.</li>
+        <li>Anti-abus : une empreinte pseudonymisée de votre adresse IP est conservée 48 heures au plus, uniquement pour limiter le nombre de demandes.</li>
+        <li>Responsable du traitement : Mohammed Bouchaanana. Base légale : intérêt légitime (répondre à votre demande, prévenir les abus).</li>
+        <li>Vos droits : accès, rectification, effacement, opposition. Écrivez à <a href="mailto:m.bouchaanana@gmail.com">m.bouchaanana@gmail.com</a>. Vous pouvez aussi saisir la CNIL (cnil.fr).</li>
+        <li>Pas de cookies, pas de traceurs.</li>
+      </ul>
+    </details>
+    <details>
+      <summary>Mentions légales</summary>
+      <ul>
+        <li>Éditeur et directeur de la publication : Mohammed Bouchaanana, consultant indépendant. Contact : <a href="mailto:m.bouchaanana@gmail.com">m.bouchaanana@gmail.com</a>.</li>
+        <li>Hébergement de la page : GitHub Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, États-Unis.</li>
+        <li>Relais technique de l'IA : Cloudflare, Inc., 101 Townsend Street, San Francisco, CA 94107, États-Unis.</li>
+      </ul>
+    </details>
+  </section>
+</main>
+
+<footer>
+  <div class="conteneur">
+    <p>Vous échangez avec une IA, pas avec Simo. Les mini-cadrages sont des brouillons indicatifs.</p>
+  </div>
+</footer>
+
+<script>
+"use strict";
+
+/* ===== Réglages (seule partie à modifier) ===== */
+const REGLAGES = {
+  // Adresse du relais Cloudflare. Vide = mode secours (mini-cadrages préparés à l'avance).
+  RELAIS_URL: "",
+  // Lien Cal.com 15 min, à fournir par Simo avant la mise en ligne.
+  LIEN_CALCOM: "{{LIEN_CALCOM}}",
+  MIN_CARACTERES: 30,
+  MAX_CARACTERES: 1200,
+  DELAI_MAX_MS: 25000
+};
+
+const EXEMPLE = "Enseigne de mode, 2 M de membres, 60 % d'inactifs, CRM Salesforce. Objectif : réactiver sans brader la marge.";
+
+const LIBELLES = {
+  enjeu: "Enjeu",
+  cas_recommande: "Cas recommandé",
+  autres_pistes: "Autres pistes",
+  mvp_4_semaines: "MVP en 4 semaines",
+  a_confirmer: "À confirmer"
+};
+
+const TEXTES = {
+  etiquetteIA: "Réponse générée par IA",
+  etiquetteSecours: "Mini-cadrage de secours, préparé à l'avance par IA et relu par Simo",
+  secoursNonActive: "L'IA en direct n'est pas encore activée. Voici le mini-cadrage préparé qui correspond le mieux à votre description. Il ne tient pas compte du détail de votre texte.",
+  secoursIndisponible: "L'IA en direct est momentanément indisponible (limite du jour atteinte ou incident). Voici le mini-cadrage préparé qui correspond le mieux à votre description.",
+  secoursChoisi: "Mini-cadrage préparé à l'avance pour cette situation type. Il ne tient pas compte du détail de votre texte.",
+  aucuneSituation: "Je n'ai pas reconnu de situation type dans votre description. Choisissez celle qui se rapproche le plus de la vôtre :",
+  autreSituation: "Voir une autre situation type :",
+  horsSujet: "Je réponds uniquement sur les programmes fidélité et le CRM. Décrivez votre programme (secteur, nombre de membres, problème principal) pour recevoir un mini-cadrage.",
+  noteIA: "Brouillon indicatif, non relu par Simo. Chiffres et pistes à valider avec vos données.",
+  noteSecours: "Brouillon indicatif. Chiffres et pistes à valider avec vos données.",
+  tropCourt: "Ajoutez quelques détails (secteur, nombre de membres, problème principal) pour un mini-cadrage utile.",
+  tropLong: "Votre description dépasse 1 200 caractères. Raccourcissez-la un peu.",
+  enCours: "Analyse en cours…",
+  envoyer: "Obtenir mon mini-cadrage"
+};
+
+/* ===== Les 5 mini-cadrages de secours (validés par Simo) ===== */
+const SITUATIONS = [
+  {
+    id: "inactifs",
+    titre: "Beaucoup de membres inactifs",
+    motsCles: ["inactif", "inactiv", "dormant", "reactiv", "win-back", "winback", "churn", "attrition", "desengag", "ne reviennent", "decroch", "perte de clients", "retention", "n'achete plus", "n'achetent plus"],
+    cadrage: {
+      enjeu: "une large part de vos membres n'achète plus ; chaque point de réactivation vaut du chiffre d'affaires, à condition de ne pas brader la marge.",
+      cas_recommande: "un score de réactivabilité qui repère les inactifs les plus faciles à faire revenir, avec une campagne win-back mesurée contre un groupe témoin.",
+      autres_pistes: "détecter tôt les actifs qui décrochent ; générer par IA des messages win-back personnalisés, dans votre charte.",
+      mvp_4_semaines: "S1 définition d'« inactif » et audit des opt-in ; S2 score ; S3 campagne test avec groupe témoin ; S4 lancement et premier bilan.",
+      a_confirmer: "votre définition d'« inactif », la part de membres joignables, le panier moyen et la marge."
+    }
+  },
+  {
+    id: "remises",
+    titre: "Remises coûteuses, rentabilité incertaine",
+    motsCles: ["remise", "promo", "coupon", "marge", "rentab", "cout", "roi", "reduction", "aubaine", "moteur promo", "avantages", "budget", "offres", "bon d'achat", "cagnotte"],
+    cadrage: {
+      enjeu: "remises et avantages pèsent sur la marge, sans preuve claire de leur effet sur la fréquence d'achat.",
+      cas_recommande: "personnaliser les offres selon l'appétence de chaque membre (le bon avantage au bon client), en mesurant le gain réel par rapport à l'offre standard.",
+      autres_pistes: "repérer les membres qui achèteraient sans remise (effet d'aubaine) ; simuler le coût d'une nouvelle règle du moteur promo avant de la lancer.",
+      mvp_4_semaines: "S1 bilan des offres passées ; S2 modèle d'appétence sur 2 ou 3 offres ; S3 test A/B contre l'offre standard ; S4 mesure de la marge et décision.",
+      a_confirmer: "le coût actuel du programme, les règles du moteur promo, l'historique des offres et de leur utilisation."
+    }
+  },
+  {
+    id: "donnees",
+    titre: "Données clients dispersées ou en doublon",
+    motsCles: ["doublon", "dedoublonn", "rcu", "referentiel", "donnee", "qualite", "unifi", "dispers", "silo", "fusion", "cdp", "base client", "vision client", "omnicanal", "fiabilis"],
+    cadrage: {
+      enjeu: "un même client existe plusieurs fois (magasin, web, appli) ; ciblage, cumul de points et reporting sont faussés.",
+      cas_recommande: "un dédoublonnage du référentiel client unique (RCU) assisté par IA, qui propose les fusions avec un score de confiance et laisse les cas douteux à un humain.",
+      autres_pistes: "fiabiliser emails, adresses et téléphones dès la saisie ; rattacher les tickets de caisse sans carte aux bons membres.",
+      mvp_4_semaines: "S1 mesure du taux de doublons sur un échantillon ; S2 règles et modèle de rapprochement ; S3 recette métier sur 500 cas ; S4 fusion pilote sur un périmètre limité.",
+      a_confirmer: "vos sources de données, l'outil qui porte le RCU, les règles de fusion acceptées par les métiers et le cadre RGPD."
+    }
+  },
+  {
+    id: "service-client",
+    titre: "Service client débordé",
+    motsCles: ["service client", "sav", "ticket", "reclamation", "support", "conseiller", "zendesk", "centre de contact", "centre d'appel", "appels", "delai de reponse", "demandes clients", "chatbot"],
+    cadrage: {
+      enjeu: "le service client absorbe de plus en plus de demandes sur le programme (points, avantages, carte), au détriment des délais et de la satisfaction.",
+      cas_recommande: "un agent IA qui trie les demandes, propose une réponse au conseiller et résume l'historique client ; le conseiller valide avant envoi.",
+      autres_pistes: "réponses automatiques aux questions simples (solde de points, avantages) ; analyse des verbatims pour repérer les irritants du programme.",
+      mvp_4_semaines: "S1 analyse de 500 tickets et top 10 des motifs ; S2 consignes et base de réponses ; S3 recette avec les conseillers ; S4 pilote sur une équipe et mesure du temps de traitement.",
+      a_confirmer: "votre outil de ticketing, les volumes par motif, les règles d'escalade vers un humain."
+    }
+  },
+  {
+    id: "engagement",
+    titre: "Engagement en baisse, messages peu lus",
+    motsCles: ["engagement", "email", "e-mail", "newsletter", "ouverture", "clic", "push", "notification", "contenu", "campagne", "personnalis", "segment", "avis client", "sms", "marketing automation", "pression marketing"],
+    cadrage: {
+      enjeu: "vos emails et notifications sont de moins en moins ouverts ; le programme perd sa place dans la relation client.",
+      cas_recommande: "une segmentation par IA (centres d'intérêt, moment d'achat), couplée à des contenus générés dans votre charte et relus avant envoi.",
+      autres_pistes: "choisir pour chaque membre le meilleur canal et le meilleur moment d'envoi ; analyser les avis clients pour nourrir les messages.",
+      mvp_4_semaines: "S1 audit des campagnes et des segments actuels ; S2 3 à 5 segments IA ; S3 contenus générés et relus, test A/B ; S4 envoi et mesure des ouvertures, clics et achats.",
+      a_confirmer: "votre outil de marketing automation, l'historique des campagnes, la charte éditoriale et les règles de pression marketing."
+    }
+  }
+];
+
+/* ===== Éléments de la page ===== */
+const $ = (id) => document.getElementById(id);
+const champ = $("description");
+const compteur = $("compteur");
+const btnEnvoyer = $("btn-envoyer");
+const messageErreur = $("message-erreur");
+const blocResultat = $("resultat");
+const etiquette = $("etiquette");
+const explication = $("explication");
+const listeLignes = $("lignes");
+const note = $("note");
+const blocSituations = $("situations");
+const titreSituations = $("titre-situations");
+const puces = $("puces");
+
+/* ===== Outils ===== */
+function normaliser(texte) {
+  return texte.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[’`]/g, "'");
+}
+
+function situationLaPlusProche(description) {
+  const texte = normaliser(description);
+  let meilleure = null;
+  let meilleurScore = 0;
+  for (const situation of SITUATIONS) {
+    let score = 0;
+    for (const mot of situation.motsCles) {
+      if (texte.includes(normaliser(mot))) score += 1;
+    }
+    if (score > meilleurScore) { meilleurScore = score; meilleure = situation; }
+  }
+  return meilleure;
+}
+
+function cadrageValide(cadrage) {
+  return cadrage && Object.keys(LIBELLES).every((cle) => typeof cadrage[cle] === "string" && cadrage[cle].trim() !== "");
+}
+
+// Espaces insécables du français : avant « ; : ! ? » et à l'intérieur des guillemets.
+function typographie(texte) {
+  return texte.replace(/\s+([;:!?»])/g, "\u00a0$1").replace(/«\s+/g, "«\u00a0");
+}
+
+function majuscule(texte) {
+  return texte.charAt(0).toUpperCase() + texte.slice(1);
+}
+
+/* ===== Affichage ===== */
+function viderResultat() {
+  listeLignes.replaceChildren();
+  puces.replaceChildren();
+  explication.hidden = true;
+  explication.textContent = "";
+  note.hidden = false;
+  blocSituations.hidden = false;
+}
+
+function afficherLignes(cadrage) {
+  listeLignes.replaceChildren();
+  for (const [cle, libelle] of Object.entries(LIBELLES)) {
+    const li = document.createElement("li");
+    const fort = document.createElement("strong");
+    fort.textContent = libelle + "\u00a0: ";
+    li.append(fort, document.createTextNode(typographie(cadrage[cle].trim())));
+    listeLignes.append(li);
+  }
+}
+
+function afficherPuces(intitule, idActif) {
+  titreSituations.textContent = intitule;
+  puces.replaceChildren();
+  for (const situation of SITUATIONS) {
+    const bouton = document.createElement("button");
+    bouton.type = "button";
+    bouton.className = "puce";
+    bouton.textContent = situation.titre;
+    bouton.setAttribute("aria-pressed", String(situation.id === idActif));
+    bouton.addEventListener("click", () => afficherSecours(situation, TEXTES.secoursChoisi));
+    puces.append(bouton);
+  }
+  blocSituations.hidden = false;
+}
+
+function montrerResultat() {
+  blocResultat.hidden = false;
+  blocResultat.focus({ preventScroll: true });
+  blocResultat.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function afficherSecours(situation, texteExplication) {
+  viderResultat();
+  etiquette.className = "etiquette secours";
+  etiquette.textContent = TEXTES.etiquetteSecours;
+  $("titre-resultat").textContent = "Situation type : " + situation.titre;
+  explication.textContent = texteExplication;
+  explication.hidden = false;
+  afficherLignes(Object.fromEntries(Object.entries(situation.cadrage).map(([k, v]) => [k, majuscule(v)])));
+  note.textContent = TEXTES.noteSecours;
+  afficherPuces(TEXTES.autreSituation, situation.id);
+  montrerResultat();
+}
+
+function afficherAucuneSituation(texteExplication) {
+  viderResultat();
+  etiquette.className = "etiquette secours";
+  etiquette.textContent = TEXTES.etiquetteSecours;
+  $("titre-resultat").textContent = "Choisissez une situation type";
+  explication.textContent = (texteExplication ? texteExplication + " " : "") + TEXTES.aucuneSituation;
+  explication.hidden = false;
+  note.hidden = true;
+  afficherPuces("Situations types :", null);
+  montrerResultat();
+}
+
+function afficherIA(cadrage) {
+  viderResultat();
+  etiquette.className = "etiquette ia";
+  etiquette.textContent = TEXTES.etiquetteIA;
+  $("titre-resultat").textContent = "Votre mini-cadrage";
+  afficherLignes(Object.fromEntries(Object.keys(LIBELLES).map((k) => [k, majuscule(cadrage[k].trim())])));
+  note.textContent = TEXTES.noteIA;
+  blocSituations.hidden = true;
+  montrerResultat();
+}
+
+function afficherHorsSujet() {
+  viderResultat();
+  etiquette.className = "etiquette ia";
+  etiquette.textContent = TEXTES.etiquetteIA;
+  $("titre-resultat").textContent = "Hors sujet";
+  explication.textContent = TEXTES.horsSujet;
+  explication.hidden = false;
+  note.hidden = true;
+  blocSituations.hidden = true;
+  montrerResultat();
+}
+
+function secoursPour(description, texteExplication) {
+  const situation = situationLaPlusProche(description);
+  if (situation) afficherSecours(situation, texteExplication);
+  else afficherAucuneSituation(texteExplication);
+}
+
+/* ===== Appel au relais (IA en direct) ===== */
+async function demanderIA(description) {
+  const controleur = new AbortController();
+  const minuteur = setTimeout(() => controleur.abort(), REGLAGES.DELAI_MAX_MS);
+  try {
+    const reponse = await fetch(REGLAGES.RELAIS_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ description }),
+      signal: controleur.signal,
+      credentials: "omit",
+      referrerPolicy: "no-referrer"
+    });
+    const donnees = await reponse.json().catch(() => null);
+    if (reponse.ok && donnees && donnees.mode === "ia" && cadrageValide(donnees.cadrage)) return { type: "ia", cadrage: donnees.cadrage };
+    if (reponse.ok && donnees && donnees.mode === "hors_sujet") return { type: "hors_sujet" };
+    return { type: "indisponible" };
+  } catch (erreur) {
+    return { type: "indisponible" };
+  } finally {
+    clearTimeout(minuteur);
+  }
+}
+
+/* ===== Formulaire ===== */
+let envoiEnCours = false;
+
+function majCompteur() {
+  compteur.textContent = champ.value.length + " / " + REGLAGES.MAX_CARACTERES;
+}
+
+champ.addEventListener("input", () => {
+  majCompteur();
+  if (messageErreur.textContent) messageErreur.textContent = "";
+});
+
+$("btn-exemple").addEventListener("click", () => {
+  champ.value = EXEMPLE;
+  majCompteur();
+  messageErreur.textContent = "";
+  champ.focus();
+});
+
+$("form-cadrage").addEventListener("submit", async (evenement) => {
+  evenement.preventDefault();
+  if (envoiEnCours) return;
+  const description = champ.value.trim();
+  if (description.length < REGLAGES.MIN_CARACTERES) {
+    messageErreur.textContent = TEXTES.tropCourt;
+    champ.focus();
+    return;
+  }
+  if (description.length > REGLAGES.MAX_CARACTERES) {
+    messageErreur.textContent = TEXTES.tropLong;
+    champ.focus();
+    return;
+  }
+  messageErreur.textContent = "";
+
+  if (!REGLAGES.RELAIS_URL) {
+    secoursPour(description, TEXTES.secoursNonActive);
+    return;
+  }
+
+  envoiEnCours = true;
+  btnEnvoyer.disabled = true;
+  btnEnvoyer.textContent = TEXTES.enCours;
+  blocResultat.setAttribute("aria-busy", "true");
+  try {
+    const resultat = await demanderIA(description);
+    if (resultat.type === "ia") afficherIA(resultat.cadrage);
+    else if (resultat.type === "hors_sujet") afficherHorsSujet();
+    else secoursPour(description, TEXTES.secoursIndisponible);
+  } finally {
+    envoiEnCours = false;
+    btnEnvoyer.disabled = false;
+    btnEnvoyer.textContent = TEXTES.envoyer;
+    blocResultat.removeAttribute("aria-busy");
+  }
+});
+
+/* ===== Bouton Cal.com ===== */
+(function preparerCalcom() {
+  const lien = $("btn-calcom");
+  const url = REGLAGES.LIEN_CALCOM;
+  if (/^https:\/\/(app\.)?cal\.(com|eu)\//.test(url)) {
+    lien.href = url;
+  } else {
+    lien.removeAttribute("href");
+    lien.setAttribute("aria-disabled", "true");
+    lien.setAttribute("role", "link");
+    $("calcom-attente").hidden = false;
+  }
+})();
+
+majCompteur();
+</script>
+</body>
+</html>
