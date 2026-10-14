@@ -1,4 +1,4 @@
-> **Brouillon généré par IA** (twin de Simo), **à valider par Simo** avant construction de la page. Les éléments entre {{ }} sont des espaces réservés à compléter.
+> Textes générés par IA (twin de Simo) et **validés par Simo le 14/10** pour la mise en ligne en mode secours. Les éléments entre {{ }} sont des espaces réservés à compléter.
 
 # Textes de la page vitrine « Mini-cadrage IA »
 
@@ -19,7 +19,7 @@
 - **Lien** : Essayer avec un exemple
 - **Bouton** : Obtenir mon mini-cadrage
 - **Sous le bouton** : Réponse générée par IA. Vous échangez avec une IA, pas avec Simo.
-- **Sous le bouton, IA en direct seulement** *(ajout après recette, à valider)* : En IA en direct, votre texte est transmis à Anthropic (États-Unis) pour générer la réponse. En savoir plus
+- **Sous le bouton, IA en direct seulement** *(validé par Simo le 14/10 ; retiré de la version publiée tant que l'IA en direct est désactivée)* : En IA en direct, votre texte est transmis à Anthropic (États-Unis) pour générer la réponse. En savoir plus
 - **Texte trop court** (moins de 30 caractères) : Ajoutez quelques détails (secteur, nombre de membres, problème principal) pour un mini-cadrage utile.
 
 ### Bloc réponse
@@ -27,7 +27,7 @@
 - **Étiquette, mode secours** : Mini-cadrage de secours, préparé à l'avance par IA et relu par Simo
 - **Explication, mode secours (IA pas encore activée)** : L'IA en direct n'est pas encore activée. Voici le mini-cadrage préparé qui correspond le mieux à votre description. Il ne tient pas compte du détail de votre texte.
 - **Explication, mode secours (IA indisponible)** : L'IA en direct est momentanément indisponible (limite du jour atteinte ou incident). Voici le mini-cadrage préparé qui correspond le mieux à votre description.
-- **Aucune situation reconnue (mode secours)** *(corrigé après recette, à valider)* : L'IA en direct n'est pas encore activée (ou : est momentanément indisponible). Je n'ai pas reconnu de situation type dans votre description. Choisissez celle qui se rapproche le plus de la vôtre :
+- **Aucune situation reconnue (mode secours)** *(validé par Simo le 14/10)* : L'IA en direct n'est pas encore activée (ou : est momentanément indisponible). Je n'ai pas reconnu de situation type dans votre description. Choisissez celle qui se rapproche le plus de la vôtre :
 - **Hors sujet (IA en direct)** : Je réponds uniquement sur les programmes fidélité et le CRM. Décrivez votre programme (secteur, nombre de membres, problème principal) pour recevoir un mini-cadrage.
 - **Sous la réponse** : Brouillon indicatif, non relu par Simo. Chiffres et pistes à valider avec vos données.
 - **Autres situations** : Voir une autre situation type : (les 5 titres de la partie B)
@@ -35,7 +35,7 @@
 ### Appel à l'action
 - **Titre** : Aller plus loin en 15 minutes
 - **Texte** : On regarde ensemble votre cas, vos données et le premier MVP à lancer.
-- **Bouton** : Réserver 15 min avec Simo (lien {{LIEN_CALCOM}})
+- **Bouton** : Écrire à Simo (mailto:m.bouchaanana@gmail.com, objet « Mini-cadrage IA »). Quand le lien Cal.com sera fourni : Réserver 15 min avec Simo (lien {{LIEN_CALCOM}}).
 
 ### Comment ça marche
 1. Vous décrivez votre programme fidélité.
@@ -51,22 +51,27 @@ Preuves IA :
 3. **Chez un client du retail** : une app SAV interne et un outil de ticketing service client, créés avec des outils IA.
 4. **Cette page elle-même** : elle s'appuie sur son twin IA (base de connaissances, 4 agents, garde-fous), construit sans coder.
 
-### Transparence et données
-*(Complété après recette pour l'information RGPD, à valider.)*
-- **Une IA, pas Simo** : la réponse est générée par une IA (Claude, d'Anthropic) à partir de votre texte. Elle s'affiche sans relecture humaine et peut contenir des erreurs. Les mini-cadrages de secours, eux, ont été préparés à l'avance par IA et relus par Simo.
-- **Votre texte** : il sert uniquement à produire la réponse. Cette page ne le stocke pas et ne le réutilise pas.
-- **Mode secours** : rien de ce que vous écrivez ne quitte votre navigateur.
-- **IA en direct uniquement** : votre texte passe par un relais technique (Cloudflare) et il est transmis à Anthropic, fournisseur du modèle, pour générer la réponse. Une empreinte pseudonymisée de votre adresse IP est conservée 48 heures au plus, uniquement pour limiter le nombre de demandes.
-- **Hébergement** : GitHub, qui héberge cette page, enregistre l'adresse IP des visiteurs pour la sécurité de son service.
-- **Hors UE** : GitHub, Cloudflare et Anthropic sont situés aux États-Unis : ces données techniques peuvent y être traitées.
-- **Base légale et responsable** : Mohammed Bouchaanana, responsable du traitement ; intérêt légitime (répondre à votre demande, prévenir les abus).
+### Transparence et données (version publiée, mode secours, validée par Simo le 14/10)
+- **Une IA, pas Simo** : Les mini-cadrages de cette page ont été préparés à l'avance par IA et relus par Simo. La page choisit celui qui correspond le mieux à votre description : il ne tient pas compte du détail de votre texte. Ce sont des brouillons indicatifs.
+- **Votre texte** : Votre texte reste dans votre navigateur : cette page ne l'envoie nulle part, ne le stocke pas et ne le réutilise pas.
+- **Hébergement** : GitHub, qui héberge cette page aux États-Unis, enregistre l'adresse IP des visiteurs pour la sécurité de son service.
+- **Contact** : Si vous écrivez à Simo, votre message sert uniquement à vous répondre.
+- **Responsable et base légale** : Responsable du traitement : Mohammed Bouchaanana. Base légale : intérêt légitime (sécurité du site, réponse à vos messages).
 - **Vos droits** : accès, rectification, effacement, limitation, opposition. Écrivez à m.bouchaanana@gmail.com. Vous pouvez aussi saisir la CNIL (cnil.fr).
 - **Pas de cookies, pas de traceurs.**
 
-### Mentions légales
-- **Éditeur et directeur de la publication** : Mohammed Bouchaanana, consultant indépendant. Contact : m.bouchaanana@gmail.com.
-- **Hébergement de la page** : GitHub Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, États-Unis.
-- **Relais technique de l'IA** : Cloudflare, Inc., 101 Townsend Street, San Francisco, CA 94107, États-Unis.
+### Mentions légales (version publiée)
+- **Éditeur et directeur de la publication** : Mohammed Bouchaanana, consultant indépendant en portage salarial, 2 rue du Prieuré, 78100 Saint-Germain-en-Laye, France. Téléphone : +33 6 68 98 86 77. Email : m.bouchaanana@gmail.com.
+- **Hébergeur** : GitHub, Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, États-Unis. Téléphone : +1 877 448 4820.
+
+### À réintroduire à l'activation de l'IA en direct (non publié)
+> Ligne sous le bouton : « En IA en direct, votre texte est transmis à Anthropic (États-Unis) pour générer la réponse. En savoir plus »
+>
+> Une IA, pas Simo : « La réponse est générée par une IA (Claude, d'Anthropic) à partir de votre texte. Elle s'affiche sans relecture humaine et peut contenir des erreurs. Les mini-cadrages de secours, eux, ont été préparés à l'avance par IA et relus par Simo. »
+>
+> Vos données : « En mode secours, rien de ce que vous écrivez ne quitte votre navigateur. » ; « En IA en direct uniquement : votre texte passe par un relais technique (Cloudflare) et il est transmis à Anthropic, fournisseur du modèle, pour générer la réponse. Une empreinte pseudonymisée de votre adresse IP est conservée 48 heures au plus, uniquement pour limiter le nombre de demandes. » ; « GitHub, Cloudflare et Anthropic sont situés aux États-Unis : ces données techniques peuvent y être traitées. » ; base légale complétée par « prévenir les abus ».
+>
+> Mentions légales : « Relais technique de l'IA : Cloudflare, Inc., 101 Townsend Street, San Francisco, CA 94107, États-Unis » (téléphone à relever sur le site officiel).
 
 ---
 
@@ -113,7 +118,7 @@ Chacun s'affiche avec l'étiquette « Mini-cadrage de secours, préparé à l'av
 
 ## C. Consignes de l'IA en direct (ce qu'elle a le droit de dire)
 
-Ces consignes sont envoyées à Claude Haiku à chaque demande. Le visiteur ne les voit pas. *Renforcées après recette (règles C1 à C10), à valider.* Texte exact : `vitrine/relais/worker.js`, constante `CONSIGNES`.
+Ces consignes sont envoyées à Claude Haiku à chaque demande. Le visiteur ne les voit pas. *Renforcées après recette (règles C1 à C10), validées par Simo le 14/10.* Texte exact : `vitrine/relais/worker.js`, constante `CONSIGNES`.
 
 > Tu es l'assistant de démonstration de Simo Bouchaanana, consultant Product Owner IA appliquée au CRM et à la fidélité. Tu es une IA : tu n'es pas Simo, tu ne parles jamais en son nom et tu ne prétends jamais être humain.
 >
@@ -135,5 +140,4 @@ Ces consignes sont envoyées à Claude Haiku à chaque demande. Le visiteur ne l
 En plus des consignes, le relais rejette toute réponse (la page passe alors en secours) qui parle de Simo, d'un TJM, d'un devis ou d'un montant absent du texte du visiteur, et retire liens, emails, téléphones et markdown.
 
 ## D. Informations manquantes
-- {{LIEN_CALCOM}} : ton lien Cal.com 15 min, à fournir avant la mise en ligne.
-- Mentions légales : voir les points signalés dans le compte rendu de construction (adresse, téléphone).
+- {{LIEN_CALCOM}} : ton lien Cal.com 15 min. En attendant, le bouton propose d'écrire à Simo par email.

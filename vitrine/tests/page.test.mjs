@@ -41,13 +41,13 @@ async function envoyer(page, texte) {
 
 const lignes = (page) => page.$$eval("#lignes li", (lis) => lis.map((li) => li.textContent));
 
-test("chargement : titre, mention IA, bouton Cal.com en attente, aucune erreur", async () => {
+test("chargement : titre, mention IA, bouton « Écrire à Simo » par email, aucune erreur", async () => {
   const { page, contexte, erreurs } = await ouvrir();
   assert.equal(await page.textContent("h1"), "Votre programme fidélité, vu par l'IA, en 5\u00a0lignes.");
   assert.match(await page.textContent(".mention-ia"), /Réponse générée par IA\. Vous échangez avec une IA, pas avec Simo\./);
-  assert.equal(await page.getAttribute("#btn-calcom", "aria-disabled"), "true");
-  assert.equal(await page.getAttribute("#btn-calcom", "href"), null);
-  assert.equal(await page.isVisible("#calcom-attente"), true);
+  assert.equal((await page.textContent("#btn-contact")).trim(), "Écrire à Simo");
+  assert.equal(await page.getAttribute("#btn-contact", "href"), "mailto:m.bouchaanana@gmail.com?subject=Mini-cadrage%20IA");
+  assert.equal(await page.getAttribute("#btn-contact", "target"), null);
   assert.equal(await page.isVisible("#resultat"), false);
   assert.deepEqual(erreurs, []);
   await contexte.close();
@@ -200,9 +200,21 @@ test("mobile (375 px) : pas de défilement horizontal, résultat lisible", async
 
 test("Cal.com renseigné : lien actif, ouverture dans un nouvel onglet", async () => {
   const { page, contexte } = await ouvrir("/calcom.html");
-  assert.equal(await page.getAttribute("#btn-calcom", "href"), "https://cal.com/exemple/15min");
-  assert.equal(await page.getAttribute("#btn-calcom", "target"), "_blank");
-  assert.match(await page.getAttribute("#btn-calcom", "rel"), /noopener/);
-  assert.equal(await page.isVisible("#calcom-attente"), false);
+  assert.equal(await page.getAttribute("#btn-contact", "href"), "https://cal.com/exemple/15min");
+  assert.equal(await page.getAttribute("#btn-contact", "target"), "_blank");
+  assert.match(await page.getAttribute("#btn-contact", "rel"), /noopener/);
+  assert.equal(await page.textContent("#btn-contact"), "Réserver 15 min avec Simo (nouvel onglet)");
+  await contexte.close();
+});
+
+test("mode secours publié : ni Cloudflare ni Anthropic dans les textes visibles, mentions légales complètes", async () => {
+  const { page, contexte } = await ouvrir();
+  await page.evaluate(() => document.querySelectorAll("details").forEach((d) => { d.open = true; }));
+  const texte = await page.evaluate(() => document.body.innerText);
+  assert.equal(/Cloudflare|Anthropic/.test(texte), false);
+  for (const attendu of ["consultant indépendant en portage salarial", "2 rue du Prieuré, 78100 Saint-Germain-en-Laye", "+33 6 68 98 86 77", "GitHub, Inc., 88 Colin P. Kelly Jr. Street", "+1 877 448 4820", "rien ne quitte"]) {
+    if (attendu === "rien ne quitte") assert.match(texte, /reste dans votre navigateur/);
+    else assert.ok(texte.includes(attendu), attendu);
+  }
   await contexte.close();
 });

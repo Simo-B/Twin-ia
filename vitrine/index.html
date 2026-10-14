@@ -164,7 +164,6 @@
       <button type="submit" class="bouton" id="btn-envoyer">Obtenir mon mini-cadrage</button>
       <p class="message-erreur" id="message-erreur" role="alert"></p>
       <p class="mention-ia">Réponse générée par IA. Vous échangez avec une IA, pas avec Simo.</p>
-      <p class="mention-ia" id="mention-transfert" hidden>En IA en direct, votre texte est transmis à Anthropic (États-Unis) pour générer la réponse. <a href="#titre-transparence">En savoir plus</a></p>
     </form>
     <noscript><p class="message-erreur">Activez JavaScript pour obtenir un mini-cadrage.</p></noscript>
   </section>
@@ -187,8 +186,7 @@
       <p>On regarde ensemble votre cas, vos données et le premier MVP à lancer.</p>
     </div>
     <div>
-      <a class="bouton" id="btn-calcom" target="_blank" rel="noopener noreferrer">Réserver 15 min avec Simo<span class="visuellement-cache"> (nouvel onglet)</span></a>
-      <span class="attente" id="calcom-attente" hidden>Lien de prise de rendez-vous bientôt disponible.</span>
+      <a class="bouton" id="btn-contact" href="mailto:m.bouchaanana@gmail.com?subject=Mini-cadrage%20IA">Écrire à Simo</a>
     </div>
   </section>
 
@@ -216,17 +214,15 @@
     <h2 id="titre-transparence">Transparence et données</h2>
     <details>
       <summary>Une IA, pas Simo</summary>
-      <p>La réponse est générée par une IA (Claude, d'Anthropic) à partir de votre texte. Elle s'affiche sans relecture humaine et peut contenir des erreurs. Les mini-cadrages de secours, eux, ont été préparés à l'avance par IA et relus par Simo.</p>
+      <p>Les mini-cadrages de cette page ont été préparés à l'avance par IA et relus par Simo. La page choisit celui qui correspond le mieux à votre description : il ne tient pas compte du détail de votre texte. Ce sont des brouillons indicatifs.</p>
     </details>
     <details>
       <summary>Vos données</summary>
       <ul>
-        <li>Votre texte sert uniquement à produire la réponse. Cette page ne le stocke pas et ne le réutilise pas.</li>
-        <li>En mode secours, rien de ce que vous écrivez ne quitte votre navigateur.</li>
-        <li>En IA en direct uniquement : votre texte passe par un relais technique (Cloudflare) et il est transmis à Anthropic, fournisseur du modèle, pour générer la réponse. Une empreinte pseudonymisée de votre adresse IP est conservée 48 heures au plus, uniquement pour limiter le nombre de demandes.</li>
-        <li>Hébergement : GitHub, qui héberge cette page, enregistre l'adresse IP des visiteurs pour la sécurité de son service.</li>
-        <li>GitHub, Cloudflare et Anthropic sont situés aux États-Unis : ces données techniques peuvent y être traitées.</li>
-        <li>Responsable du traitement : Mohammed Bouchaanana. Base légale : intérêt légitime (répondre à votre demande, prévenir les abus).</li>
+        <li>Votre texte reste dans votre navigateur : cette page ne l'envoie nulle part, ne le stocke pas et ne le réutilise pas.</li>
+        <li>Hébergement : GitHub, qui héberge cette page aux États-Unis, enregistre l'adresse IP des visiteurs pour la sécurité de son service.</li>
+        <li>Si vous écrivez à Simo, votre message sert uniquement à vous répondre.</li>
+        <li>Responsable du traitement : Mohammed Bouchaanana. Base légale : intérêt légitime (sécurité du site, réponse à vos messages).</li>
         <li>Vos droits : accès, rectification, effacement, limitation, opposition. Écrivez à <a href="mailto:m.bouchaanana@gmail.com">m.bouchaanana@gmail.com</a>. Vous pouvez aussi saisir la CNIL (cnil.fr).</li>
         <li>Pas de cookies, pas de traceurs.</li>
       </ul>
@@ -234,9 +230,8 @@
     <details>
       <summary>Mentions légales</summary>
       <ul>
-        <li>Éditeur et directeur de la publication : Mohammed Bouchaanana, consultant indépendant. Contact : <a href="mailto:m.bouchaanana@gmail.com">m.bouchaanana@gmail.com</a>.</li>
-        <li>Hébergement de la page : GitHub Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, États-Unis.</li>
-        <li>Relais technique de l'IA : Cloudflare, Inc., 101 Townsend Street, San Francisco, CA 94107, États-Unis.</li>
+        <li>Éditeur et directeur de la publication : Mohammed Bouchaanana, consultant indépendant en portage salarial, 2 rue du Prieuré, 78100 Saint-Germain-en-Laye, France. Téléphone : <a href="tel:+33668988677">+33 6 68 98 86 77</a>. Email : <a href="mailto:m.bouchaanana@gmail.com">m.bouchaanana@gmail.com</a>.</li>
+        <li>Hébergeur : GitHub, Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, États-Unis. Téléphone : +1 877 448 4820.</li>
       </ul>
     </details>
   </section>
@@ -253,10 +248,12 @@
 
 /* ===== Réglages (seule partie à modifier) ===== */
 const REGLAGES = {
-  // Adresse du relais Cloudflare. Vide = mode secours (mini-cadrages préparés à l'avance).
+  // Adresse du relais IA. Vide = mode secours (mini-cadrages préparés à l'avance).
   RELAIS_URL: "",
-  // Lien Cal.com 15 min, à fournir par Simo avant la mise en ligne.
+  // Lien Cal.com 15 min. Tant qu'il n'est pas renseigné, le bouton propose d'écrire à Simo.
   LIEN_CALCOM: "{{LIEN_CALCOM}}",
+  EMAIL_CONTACT: "m.bouchaanana@gmail.com",
+  OBJET_EMAIL: "Mini-cadrage IA",
   MIN_CARACTERES: 30,
   MAX_CARACTERES: 1200,
   DELAI_MAX_MS: 25000
@@ -592,21 +589,24 @@ $("form-cadrage").addEventListener("submit", async (evenement) => {
   }
 });
 
-/* ===== Bouton Cal.com ===== */
-(function preparerCalcom() {
-  const lien = $("btn-calcom");
+/* ===== Bouton de contact : Cal.com si le lien est renseigné, sinon email ===== */
+(function preparerContact() {
+  const bouton = $("btn-contact");
   const url = REGLAGES.LIEN_CALCOM;
   if (/^https:\/\/(app\.)?cal\.(com|eu)\//.test(url)) {
-    lien.href = url;
+    bouton.href = url;
+    bouton.target = "_blank";
+    bouton.rel = "noopener noreferrer";
+    const nouvelOnglet = document.createElement("span");
+    nouvelOnglet.className = "visuellement-cache";
+    nouvelOnglet.textContent = " (nouvel onglet)";
+    bouton.replaceChildren(document.createTextNode("Réserver 15 min avec Simo"), nouvelOnglet);
   } else {
-    lien.removeAttribute("href");
-    lien.setAttribute("aria-disabled", "true");
-    lien.setAttribute("role", "link");
-    $("calcom-attente").hidden = false;
+    bouton.href = "mailto:" + REGLAGES.EMAIL_CONTACT + "?subject=" + encodeURIComponent(REGLAGES.OBJET_EMAIL);
+    bouton.textContent = "Écrire à Simo";
   }
 })();
 
-$("mention-transfert").hidden = !REGLAGES.RELAIS_URL;
 majCompteur();
 </script>
 </body>

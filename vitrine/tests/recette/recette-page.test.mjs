@@ -383,7 +383,7 @@ test("T27 transparence : mention IA visible dans chaque état ; mode secours et 
   await attendreResultat(s.page);
   etats.secours = /secours/.test(await s.page.textContent("#etiquette")) && /pas encore activée/.test(await s.page.textContent("#explication")) && /ne tient pas compte du détail/.test(await s.page.textContent("#explication"));
   etats.piedDePage = (await s.page.textContent("footer")).includes("Vous échangez avec une IA, pas avec Simo");
-  etats.transparence = (await s.page.textContent("details:nth-of-type(1)")).includes("Claude, d'Anthropic");
+  etats.transparence = (await s.page.textContent("details:nth-of-type(1)")).includes("préparés à l'avance par IA et relus par Simo");
   await s.contexte.close();
   t.diagnostic("obtenu : " + JSON.stringify(etats));
   assert.ok(Object.values(etats).every(Boolean), JSON.stringify(etats));
@@ -426,7 +426,7 @@ test("T28 cibles tactiles : au moins 24 × 24 px ou exception d'espacement (WCAG
   await attendreResultat(page);
   const tailles = await page.evaluate(() => {
     const cibles = [...document.querySelectorAll("a[href], button, textarea, summary")].filter((e) => e.offsetParent !== null);
-    return ["#btn-exemple", "#btn-envoyer", ".puce", "summary", "#btn-calcom"].map((s) => {
+    return ["#btn-exemple", "#btn-envoyer", ".puce", "summary", "#btn-contact"].map((s) => {
       const el = document.querySelector(s);
       const r = el.getBoundingClientRect();
       const cx = r.left + r.width / 2; const cy = r.top + r.height / 2;
@@ -486,7 +486,7 @@ const CONTRASTE = () => {
   const lum = ([r, g, b]) => [r, g, b].map((v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }).reduce((s, v, i) => s + v * [0.2126, 0.7152, 0.0722][i], 0);
   const fond = (el) => { for (let e = el; e; e = e.parentElement) { const c = rgb(getComputedStyle(e).backgroundColor); if (c.length === 3 || (c.length === 4 && c[3] > 0)) return c.slice(0, 3); } return [255, 255, 255]; };
   const ratio = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((m, n) => n - m); return (x + 0.05) / (y + 0.05); };
-  const cibles = [".role", ".accroche p", ".aide", "#compteur", ".mention-ia", "#btn-exemple", "#btn-envoyer", "#message-erreur", "#etiquette", ".explication", "#lignes li", "#lignes li strong", ".note", ".puce", ".appel p", "#calcom-attente", "ol.etapes li", "ul.preuves li", "summary", "details a", "footer p"];
+  const cibles = [".role", ".accroche p", ".aide", "#compteur", ".mention-ia", "#btn-exemple", "#btn-envoyer", "#message-erreur", "#etiquette", ".explication", "#lignes li", "#lignes li strong", ".note", ".puce", ".appel p", "ol.etapes li", "ul.preuves li", "summary", "details a", "footer p"];
   const res = cibles.map((s) => { const el = document.querySelector(s); if (!el) return { s, r: null }; return { s, r: Math.round(ratio(rgb(getComputedStyle(el).color).slice(0, 3), fond(el)) * 100) / 100 }; });
   const champ = document.querySelector("#description");
   res.push({ s: "::placeholder", r: Math.round(ratio(rgb(getComputedStyle(champ, "::placeholder").color).slice(0, 3), fond(champ)) * 100) / 100 });
@@ -549,15 +549,16 @@ test("T30 conformité : les textes validés par Simo figurent à l'identique dan
   assert.ok(absents.length <= 3, absents.join("\n"));
 });
 
-test("T30 Cal.com : espace réservé → bouton inactif et message ; lien cal.com → actif ; lien Calendly → refusé en silence", async (t) => {
+test("T30 contact : sans lien Cal.com → « Écrire à Simo » par email ; lien cal.com → rendez-vous ; autre lien → email", async (t) => {
   const r = {};
   for (const [chemin, cle] of [["/", "reserve"], ["/calcom.html", "calcom"], ["/calendly.html", "calendly"]]) {
     const { page, contexte } = await ouvrir(chemin);
-    r[cle] = { href: await page.getAttribute("#btn-calcom", "href"), desactive: await page.getAttribute("#btn-calcom", "aria-disabled"), attente: await page.isVisible("#calcom-attente") };
+    r[cle] = { href: await page.getAttribute("#btn-contact", "href"), texte: (await page.textContent("#btn-contact")).trim() };
     await contexte.close();
   }
   t.diagnostic("obtenu : " + JSON.stringify(r));
-  assert.deepEqual(r.reserve, { href: null, desactive: "true", attente: true });
-  assert.deepEqual(r.calcom, { href: "https://cal.com/exemple/15min", desactive: null, attente: false });
-  assert.equal(r.calendly.desactive, "true");
+  const email = { href: "mailto:m.bouchaanana@gmail.com?subject=Mini-cadrage%20IA", texte: "Écrire à Simo" };
+  assert.deepEqual(r.reserve, email);
+  assert.deepEqual(r.calcom, { href: "https://cal.com/exemple/15min", texte: "Réserver 15 min avec Simo (nouvel onglet)" });
+  assert.deepEqual(r.calendly, email);
 });
