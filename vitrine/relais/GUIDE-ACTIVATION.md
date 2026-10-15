@@ -8,9 +8,9 @@ La page fonctionne seule en **mode secours** : les 5 mini-cadrages préparés, s
 ## Étape 1 : mise en ligne de la page en mode secours (gratuit) : feu vert de Simo le 14/10
 1. Bouton de contact : « Écrire à Simo » par email (objet « Mini-cadrage IA ») tant que `LIEN_CALCOM` vaut `{{LIEN_CALCOM}}`. Plus tard, remplacer `{{LIEN_CALCOM}}` (une seule occurrence, dans les réglages en haut du script) par le lien Cal.com : le bouton devient « Réserver 15 min avec Simo ».
 2. Mentions légales réduites à la demande de Simo (15/10) : éditeur et email de contact uniquement. Cloudflare et Anthropic n'apparaissent pas tant que l'IA en direct est désactivée.
-3. Dépôt **public** `Simo-B/simo-vitrine` : `index.html` uniquement.
+3. Dépôt **public** `Simo-B/Simo-vitrine` : `index.html` uniquement.
 4. GitHub Pages activé (Settings > Pages > branche `main`, dossier racine).
-5. Adresse : `https://simo-b.github.io/simo-vitrine/`.
+5. Adresse : `https://simo-b.github.io/Simo-vitrine/` (majuscule : le dépôt s'appelle `Simo-vitrine`). Pages activé par Simo le 15/10, premier déploiement réussi.
 
 ## Étape 2 : relais Cloudflare (gratuit, sans carte bancaire)
 1. Créer un compte Cloudflare gratuit (offre Free).
@@ -33,7 +33,7 @@ Tant que la clé API manque, le relais répond « indisponible » et la page res
 ## Étape 4 : brancher la page sur le relais
 1. Dans `index.html`, renseigner `RELAIS_URL: "https://mini-cadrage.<sous-domaine>.workers.dev/cadrage"`.
 2. Réintroduire les textes sur Cloudflare et Anthropic (ligne sous le bouton, « Une IA, pas Simo », « Vos données », mentions légales) : voir la section « À réintroduire à l'activation de l'IA en direct » de `livrables/2026-10-14-textes-vitrine.md`.
-3. Republier la page dans `simo-vitrine`.
+3. Republier la page dans `Simo-vitrine`.
 
 ## Étape 5 : recette réelle (coût estimé : environ 0,03 $, au pire 0,07 $)
 1. Relever temporairement `PLAFOND_JOUR_IP` à 80 (sinon le relais bloque le script après 5 demandes).
