@@ -214,9 +214,15 @@ test("mode secours publié : ni Cloudflare ni Anthropic, mentions réduites, auc
   assert.equal(/Cloudflare|Anthropic/.test(texte), false);
   assert.ok(texte.includes("Éditeur : Mohammed Bouchaanana, consultant indépendant. Contact : m.bouchaanana@gmail.com"));
   assert.match(texte, /reste dans votre navigateur/);
-  // Garde-fou : ni adresse postale ni numéro de téléphone, ni dans le texte affiché ni dans le code de la page.
+  // Garde-fou générique : ni adresse postale ni numéro de téléphone, ni dans le texte affiché ni dans le code de la page.
+  const motifs = [
+    /\b\d{1,4}(?:\s?(?:bis|ter))?,?\s+(?:rue|avenue|boulevard|place|allée|impasse|chemin|quai|route)\b/i,
+    /\b\d{5}\s+\p{Lu}/u,
+    /tel:/i,
+    /(?:\+33|\b0)\s?[1-9](?:[\s.-]?\d{2}){4}/
+  ];
   for (const source of [texte, PAGE]) {
-    assert.equal(/prieur|78100|saint-germain|tel:|(?:\+33|\b0)\s?[1-9](?:[\s.-]?\d{2}){4}/i.test(source), false);
+    for (const motif of motifs) assert.equal(motif.test(source), false, String(motif));
   }
   await contexte.close();
 });
