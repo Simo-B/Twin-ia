@@ -1,12 +1,12 @@
 # Vitrine « Mini-cadrage IA »
 
-Page vitrine de Simo : un visiteur décrit son programme fidélité et reçoit un mini-cadrage IA en 5 lignes. Elle porte la mention « Réponse générée par IA » et un bouton de contact (email, puis Cal.com quand le lien sera fourni).
+Page vitrine de Simo : un visiteur décrit son programme fidélité et reçoit un mini-cadrage IA en 5 lignes. Elle porte la mention « Réponse générée par IA » et un bouton « Échanger 15 min avec Simo » (lien `{{LIEN_CONTACT}}` à fournir). Signature publique : « Simo B. » (règle 6 de CLAUDE.md).
 
 Ce dossier est la **source de travail**. La version publiée (mode secours) est copiée dans le dépôt public `Simo-B/Simo-vitrine` : https://simo-b.github.io/Simo-vitrine/ (feu vert de Simo le 14/10, en ligne depuis le 15/10). Le relais et les tests restent ici.
 
 | Fichier | Rôle |
 |---|---|
-| `index.html` | La page, en un seul fichier, sans dépendance externe. Ses réglages sont en haut du script : `RELAIS_URL`, `LIEN_CALCOM` et l'email de contact. |
+| `index.html` | La page, en un seul fichier, sans dépendance externe. Ses réglages sont en haut du script : `RELAIS_URL` et `LIEN_CONTACT`. |
 | `relais/worker.js` | Le relais Cloudflare : il garde la clé API, applique les limites anti-abus et appelle Claude Haiku. |
 | `relais/GUIDE-ACTIVATION.md` | Les étapes d'activation, chacune soumise au feu vert de Simo. |
 | `tests/` | Les tests automatiques (`npm test`) et les captures d'aperçu (`node tests/apercu.mjs`). |

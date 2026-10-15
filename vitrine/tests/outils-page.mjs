@@ -21,9 +21,9 @@ export function chargerPlaywright() {
 }
 
 // Variantes de la page : réglages remplacés comme le ferait Simo avant la mise en ligne.
-export function variante({ relais = "", calcom = null } = {}) {
+export function variante({ relais = "", contact = null } = {}) {
   let html = PAGE.replace('RELAIS_URL: ""', `RELAIS_URL: ${JSON.stringify(relais)}`);
-  if (calcom) html = html.replaceAll("{{LIEN_CALCOM}}", calcom);
+  if (contact) html = html.replaceAll("{{LIEN_CONTACT}}", contact);
   return html;
 }
 

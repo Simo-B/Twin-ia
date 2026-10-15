@@ -6,7 +6,7 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src https://*.workers.dev; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="description" content="Décrivez votre programme fidélité et recevez un mini-cadrage IA en 5 lignes : l'enjeu, le cas d'usage à lancer en premier et un MVP en 4 semaines.">
-<title>Mini-cadrage IA fidélité · Simo Bouchaanana</title>
+<title>Mini-cadrage IA fidélité · Simo B.</title>
 <style>
   :root {
     --bg: #f7f5f0;
@@ -140,7 +140,7 @@
 
 <header class="bandeau">
   <div class="conteneur">
-    <span class="nom">Simo Bouchaanana</span>
+    <span class="nom">Simo B.</span>
     <span class="role">PO IA appliquée au CRM et à la fidélité</span>
   </div>
 </header>
@@ -186,7 +186,8 @@
       <p>On regarde ensemble votre cas, vos données et le premier MVP à lancer.</p>
     </div>
     <div>
-      <a class="bouton" id="btn-contact" href="mailto:m.bouchaanana@gmail.com?subject=Mini-cadrage%20IA">Écrire à Simo</a>
+      <a class="bouton" id="btn-contact" data-lien-contact target="_blank" rel="noopener noreferrer">Échanger 15 min avec Simo<span class="visuellement-cache"> (nouvel onglet)</span></a>
+      <span class="attente" id="contact-attente" hidden>Lien de contact bientôt disponible.</span>
     </div>
   </section>
 
@@ -201,7 +202,7 @@
 
   <section class="bloc" aria-labelledby="titre-qui">
     <h2 id="titre-qui">Qui est derrière</h2>
-    <p>Simo Bouchaanana, consultant indépendant. Il conçoit et livre des cas d'usage IA, du cadrage au déploiement. 11 ans de projets digitaux, dont CRM, fidélité et donnée client, dans le retail, l'hôtellerie, le cinéma, la fintech et l'énergie.</p>
+    <p>Simo B., consultant indépendant. Il conçoit et livre des cas d'usage IA, du cadrage au déploiement. 11 ans de projets digitaux, dont CRM, fidélité et donnée client, dans le retail, l'hôtellerie, le cinéma, la fintech et l'énergie.</p>
     <ul class="preuves">
       <li><strong>Snapforge Lab</strong> : une activité d'audit et de correction d'apps, avec une machine de prospection pilotée par IA (détection de leads, audit, scoring, emails personnalisés).</li>
       <li><strong>Un business IA piloté par une équipe d'agents IA</strong> : moteur d'audit, rapport, landing page.</li>
@@ -221,16 +222,17 @@
       <ul>
         <li>Votre texte reste dans votre navigateur : cette page ne l'envoie nulle part, ne le stocke pas et ne le réutilise pas.</li>
         <li>Hébergement : GitHub, qui héberge cette page aux États-Unis, enregistre l'adresse IP des visiteurs pour la sécurité de son service.</li>
-        <li>Si vous écrivez à Simo, votre message sert uniquement à vous répondre.</li>
-        <li>Responsable du traitement : Mohammed Bouchaanana. Base légale : intérêt légitime (sécurité du site, réponse à vos messages).</li>
-        <li>Vos droits : accès, rectification, effacement, limitation, opposition. Écrivez à <a href="mailto:m.bouchaanana@gmail.com">m.bouchaanana@gmail.com</a>. Vous pouvez aussi saisir la CNIL (cnil.fr).</li>
+        <li>Si vous contactez Simo, vos informations servent uniquement à vous répondre.</li>
+        <li>Responsable du traitement : Simo B., consultant indépendant. Base légale : intérêt légitime (sécurité du site, réponse à vos demandes).</li>
+        <li>Vos droits : accès, rectification, effacement, limitation, opposition. Pour les exercer, passez par le lien « <a data-lien-contact target="_blank" rel="noopener noreferrer">Échanger 15 min avec Simo</a> ». Vous pouvez aussi saisir la CNIL (cnil.fr).</li>
         <li>Pas de cookies, pas de traceurs.</li>
       </ul>
     </details>
     <details>
       <summary>Mentions légales</summary>
       <ul>
-        <li>Éditeur : Mohammed Bouchaanana, consultant indépendant. Contact : <a href="mailto:m.bouchaanana@gmail.com">m.bouchaanana@gmail.com</a></li>
+        <li>Éditeur : Simo B., consultant indépendant</li>
+        <li>Hébergeur : GitHub, Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, États-Unis, +1 877 448 4820</li>
       </ul>
     </details>
   </section>
@@ -249,10 +251,9 @@
 const REGLAGES = {
   // Adresse du relais IA. Vide = mode secours (mini-cadrages préparés à l'avance).
   RELAIS_URL: "",
-  // Lien Cal.com 15 min. Tant qu'il n'est pas renseigné, le bouton propose d'écrire à Simo.
-  LIEN_CALCOM: "{{LIEN_CALCOM}}",
-  EMAIL_CONTACT: "m.bouchaanana@gmail.com",
-  OBJET_EMAIL: "Mini-cadrage IA",
+  // Lien de contact (échange de 15 min, demandes des visiteurs, exercice de leurs droits).
+  // Tant qu'il n'est pas renseigné, le bouton reste inactif avec la mention « Lien de contact bientôt disponible ».
+  LIEN_CONTACT: "{{LIEN_CONTACT}}",
   MIN_CARACTERES: 30,
   MAX_CARACTERES: 1200,
   DELAI_MAX_MS: 25000
@@ -588,22 +589,22 @@ $("form-cadrage").addEventListener("submit", async (evenement) => {
   }
 });
 
-/* ===== Bouton de contact : Cal.com si le lien est renseigné, sinon email ===== */
+/* ===== Lien de contact : bouton « Échanger 15 min avec Simo » et exercice des droits ===== */
 (function preparerContact() {
-  const bouton = $("btn-contact");
-  const url = REGLAGES.LIEN_CALCOM;
-  if (/^https:\/\/(app\.)?cal\.(com|eu)\//.test(url)) {
-    bouton.href = url;
-    bouton.target = "_blank";
-    bouton.rel = "noopener noreferrer";
-    const nouvelOnglet = document.createElement("span");
-    nouvelOnglet.className = "visuellement-cache";
-    nouvelOnglet.textContent = " (nouvel onglet)";
-    bouton.replaceChildren(document.createTextNode("Réserver 15 min avec Simo"), nouvelOnglet);
-  } else {
-    bouton.href = "mailto:" + REGLAGES.EMAIL_CONTACT + "?subject=" + encodeURIComponent(REGLAGES.OBJET_EMAIL);
-    bouton.textContent = "Écrire à Simo";
+  const url = REGLAGES.LIEN_CONTACT;
+  const valide = /^https:\/\/[^\s{}<>"]+$/.test(url);
+  for (const lien of document.querySelectorAll("[data-lien-contact]")) {
+    if (valide) {
+      lien.href = url;
+    } else {
+      lien.removeAttribute("href");
+      if (lien.id === "btn-contact") {
+        lien.setAttribute("role", "link");
+        lien.setAttribute("aria-disabled", "true");
+      }
+    }
   }
+  $("contact-attente").hidden = valide;
 })();
 
 majCompteur();

@@ -6,8 +6,8 @@
 La page fonctionne seule en **mode secours** : les 5 mini-cadrages préparés, signalés comme tels, sans aucun appel extérieur. On peut donc la mettre en ligne d'abord comme ça, puis activer l'IA en direct plus tard.
 
 ## Étape 1 : mise en ligne de la page en mode secours (gratuit) : feu vert de Simo le 14/10
-1. Bouton de contact : « Écrire à Simo » par email (objet « Mini-cadrage IA ») tant que `LIEN_CALCOM` vaut `{{LIEN_CALCOM}}`. Plus tard, remplacer `{{LIEN_CALCOM}}` (une seule occurrence, dans les réglages en haut du script) par le lien Cal.com : le bouton devient « Réserver 15 min avec Simo ».
-2. Mentions légales réduites à la demande de Simo (15/10) : éditeur et email de contact uniquement. Cloudflare et Anthropic n'apparaissent pas tant que l'IA en direct est désactivée.
+1. Bouton de contact « Échanger 15 min avec Simo », ouvert dans un nouvel onglet ; le même lien sert à exercer les droits RGPD. Remplacer `{{LIEN_CONTACT}}` (une seule occurrence, dans les réglages en haut du script) par le lien fourni par Simo (https). D'ici là, le bouton reste inactif.
+2. Mentions légales (décision de Simo, 15/10) : « Éditeur : Simo B., consultant indépendant » et l'hébergeur GitHub. Jamais de nom de famille, d'email, d'adresse ni de téléphone (règle 6 de CLAUDE.md). Cloudflare et Anthropic n'apparaissent pas tant que l'IA en direct est désactivée.
 3. Dépôt **public** `Simo-B/Simo-vitrine` : `index.html` uniquement.
 4. GitHub Pages activé (Settings > Pages > branche `main`, dossier racine).
 5. Adresse : `https://simo-b.github.io/Simo-vitrine/` (majuscule : le dépôt s'appelle `Simo-vitrine`). Pages activé par Simo le 15/10, premier déploiement réussi.

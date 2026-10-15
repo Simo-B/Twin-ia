@@ -22,8 +22,8 @@ before(async () => {
     "/": variante(),
     "/relais.html": variante({ relais: RELAIS_TEST }),
     "/relais-lent.html": variante({ relais: RELAIS_TEST }).replace("DELAI_MAX_MS: 25000", "DELAI_MAX_MS: 1500"),
-    "/calcom.html": variante({ calcom: "https://cal.com/exemple/15min" }),
-    "/calendly.html": variante({ calcom: "https://calendly.com/exemple/15min" })
+    "/calcom.html": variante({ contact: "https://cal.com/exemple/15min" }),
+    "/calendly.html": variante({ contact: "https://calendly.com/exemple/15min" })
   });
   navigateur = await chromium.launch();
 });
@@ -549,16 +549,15 @@ test("T30 conformité : les textes validés par Simo figurent à l'identique dan
   assert.ok(absents.length <= 3, absents.join("\n"));
 });
 
-test("T30 contact : sans lien Cal.com → « Écrire à Simo » par email ; lien cal.com → rendez-vous ; autre lien → email", async (t) => {
+test("T30 contact : sans lien → bouton inactif et mention d'attente ; tout lien https → bouton actif en nouvel onglet", async (t) => {
   const r = {};
   for (const [chemin, cle] of [["/", "reserve"], ["/calcom.html", "calcom"], ["/calendly.html", "calendly"]]) {
     const { page, contexte } = await ouvrir(chemin);
-    r[cle] = { href: await page.getAttribute("#btn-contact", "href"), texte: (await page.textContent("#btn-contact")).trim() };
+    r[cle] = { href: await page.getAttribute("#btn-contact", "href"), inactif: await page.getAttribute("#btn-contact", "aria-disabled"), attente: await page.isVisible("#contact-attente") };
     await contexte.close();
   }
   t.diagnostic("obtenu : " + JSON.stringify(r));
-  const email = { href: "mailto:m.bouchaanana@gmail.com?subject=Mini-cadrage%20IA", texte: "Écrire à Simo" };
-  assert.deepEqual(r.reserve, email);
-  assert.deepEqual(r.calcom, { href: "https://cal.com/exemple/15min", texte: "Réserver 15 min avec Simo (nouvel onglet)" });
-  assert.deepEqual(r.calendly, email);
+  assert.deepEqual(r.reserve, { href: null, inactif: "true", attente: true });
+  assert.deepEqual(r.calcom, { href: "https://cal.com/exemple/15min", inactif: null, attente: false });
+  assert.deepEqual(r.calendly, { href: "https://calendly.com/exemple/15min", inactif: null, attente: false });
 });

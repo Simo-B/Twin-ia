@@ -5,7 +5,7 @@
 ## A. Textes de la page
 
 ### En-tête
-**Simo Bouchaanana** · PO IA appliquée au CRM et à la fidélité
+**Simo B.** · PO IA appliquée au CRM et à la fidélité
 
 ### Accroche
 **Titre** : Votre programme fidélité, vu par l'IA, en 5 lignes.
@@ -35,7 +35,7 @@
 ### Appel à l'action
 - **Titre** : Aller plus loin en 15 minutes
 - **Texte** : On regarde ensemble votre cas, vos données et le premier MVP à lancer.
-- **Bouton** : Écrire à Simo (mailto:m.bouchaanana@gmail.com, objet « Mini-cadrage IA »). Quand le lien Cal.com sera fourni : Réserver 15 min avec Simo (lien {{LIEN_CALCOM}}).
+- **Bouton** : Échanger 15 min avec Simo (lien {{LIEN_CONTACT}}, ouvert dans un nouvel onglet). Tant que le lien manque : bouton inactif et mention « Lien de contact bientôt disponible. »
 
 ### Comment ça marche
 1. Vous décrivez votre programme fidélité.
@@ -43,7 +43,7 @@
 3. Si vous voulez aller plus loin, on en parle 15 minutes.
 
 ### Qui est derrière
-Simo Bouchaanana, consultant indépendant. Il conçoit et livre des cas d'usage IA, du cadrage au déploiement. 11 ans de projets digitaux, dont CRM, fidélité et donnée client, dans le retail, l'hôtellerie, le cinéma, la fintech et l'énergie.
+Simo B., consultant indépendant. Il conçoit et livre des cas d'usage IA, du cadrage au déploiement. 11 ans de projets digitaux, dont CRM, fidélité et donnée client, dans le retail, l'hôtellerie, le cinéma, la fintech et l'énergie.
 
 Preuves IA :
 1. **Snapforge Lab** : une activité d'audit et de correction d'apps, avec une machine de prospection pilotée par IA (détection de leads, audit, scoring, emails personnalisés).
@@ -55,13 +55,14 @@ Preuves IA :
 - **Une IA, pas Simo** : Les mini-cadrages de cette page ont été préparés à l'avance par IA et relus par Simo. La page choisit celui qui correspond le mieux à votre description : il ne tient pas compte du détail de votre texte. Ce sont des brouillons indicatifs.
 - **Votre texte** : Votre texte reste dans votre navigateur : cette page ne l'envoie nulle part, ne le stocke pas et ne le réutilise pas.
 - **Hébergement** : GitHub, qui héberge cette page aux États-Unis, enregistre l'adresse IP des visiteurs pour la sécurité de son service.
-- **Contact** : Si vous écrivez à Simo, votre message sert uniquement à vous répondre.
-- **Responsable et base légale** : Responsable du traitement : Mohammed Bouchaanana. Base légale : intérêt légitime (sécurité du site, réponse à vos messages).
-- **Vos droits** : accès, rectification, effacement, limitation, opposition. Écrivez à m.bouchaanana@gmail.com. Vous pouvez aussi saisir la CNIL (cnil.fr).
+- **Contact** : Si vous contactez Simo, vos informations servent uniquement à vous répondre.
+- **Responsable et base légale** : Responsable du traitement : Simo B., consultant indépendant. Base légale : intérêt légitime (sécurité du site, réponse à vos demandes).
+- **Vos droits** : accès, rectification, effacement, limitation, opposition. Pour les exercer, passez par le lien « Échanger 15 min avec Simo ». Vous pouvez aussi saisir la CNIL (cnil.fr).
 - **Pas de cookies, pas de traceurs.**
 
-### Mentions légales (version publiée, réduite à la demande de Simo le 15/10)
-- **Éditeur** : Mohammed Bouchaanana, consultant indépendant. Contact : m.bouchaanana@gmail.com
+### Mentions légales (version publiée, décision de Simo le 15/10)
+- **Éditeur** : Simo B., consultant indépendant
+- **Hébergeur** : GitHub, Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, États-Unis, +1 877 448 4820
 
 ### À réintroduire à l'activation de l'IA en direct (non publié)
 > Ligne sous le bouton : « En IA en direct, votre texte est transmis à Anthropic (États-Unis) pour générer la réponse. En savoir plus »
@@ -119,7 +120,7 @@ Chacun s'affiche avec l'étiquette « Mini-cadrage de secours, préparé à l'av
 
 Ces consignes sont envoyées à Claude Haiku à chaque demande. Le visiteur ne les voit pas. *Renforcées après recette (règles C1 à C10), validées par Simo le 14/10.* Texte exact : `vitrine/relais/worker.js`, constante `CONSIGNES`.
 
-> Tu es l'assistant de démonstration de Simo Bouchaanana, consultant Product Owner IA appliquée au CRM et à la fidélité. Tu es une IA : tu n'es pas Simo, tu ne parles jamais en son nom et tu ne prétends jamais être humain.
+> Tu es l'assistant de démonstration de Simo B., consultant Product Owner IA appliquée au CRM et à la fidélité. Tu es une IA : tu n'es pas Simo, tu ne parles jamais en son nom et tu ne prétends jamais être humain.
 >
 > Mission : à partir de la description d'un programme fidélité écrite par un visiteur, produire un mini-cadrage IA en 5 lignes, en français : enjeu, cas recommandé, autres pistes, MVP en 4 semaines (S1 à S4), à confirmer.
 >
@@ -139,4 +140,4 @@ Ces consignes sont envoyées à Claude Haiku à chaque demande. Le visiteur ne l
 En plus des consignes, le relais rejette toute réponse (la page passe alors en secours) qui parle de Simo, d'un TJM, d'un devis ou d'un montant absent du texte du visiteur, et retire liens, emails, téléphones et markdown.
 
 ## D. Informations manquantes
-- {{LIEN_CALCOM}} : ton lien Cal.com 15 min. En attendant, le bouton propose d'écrire à Simo par email.
+- {{LIEN_CONTACT}} : le lien de contact (échange de 15 min, demandes et droits des visiteurs). En attendant, le bouton « Échanger 15 min avec Simo » reste inactif.

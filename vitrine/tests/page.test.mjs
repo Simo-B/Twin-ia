@@ -11,7 +11,7 @@ before(async () => {
   serveur = await demarrerServeur({
     "/": variante(),
     "/relais.html": variante({ relais: RELAIS_TEST }),
-    "/calcom.html": variante({ calcom: "https://cal.com/exemple/15min" }),
+    "/contact.html": variante({ contact: "https://cal.com/exemple/15min" }),
     "/relais-interdit.html": variante({ relais: "https://autre-domaine.example.com/cadrage" })
   });
   navigateur = await chromium.launch();
@@ -41,13 +41,15 @@ async function envoyer(page, texte) {
 
 const lignes = (page) => page.$$eval("#lignes li", (lis) => lis.map((li) => li.textContent));
 
-test("chargement : titre, mention IA, bouton « Écrire à Simo » par email, aucune erreur", async () => {
+test("chargement : titre, mention IA, bouton de contact inactif tant que le lien manque, aucune erreur", async () => {
   const { page, contexte, erreurs } = await ouvrir();
   assert.equal(await page.textContent("h1"), "Votre programme fidélité, vu par l'IA, en 5\u00a0lignes.");
   assert.match(await page.textContent(".mention-ia"), /Réponse générée par IA\. Vous échangez avec une IA, pas avec Simo\./);
-  assert.equal((await page.textContent("#btn-contact")).trim(), "Écrire à Simo");
-  assert.equal(await page.getAttribute("#btn-contact", "href"), "mailto:m.bouchaanana@gmail.com?subject=Mini-cadrage%20IA");
-  assert.equal(await page.getAttribute("#btn-contact", "target"), null);
+  assert.ok((await page.textContent("#btn-contact")).startsWith("Échanger 15 min avec Simo"));
+  assert.equal(await page.getAttribute("#btn-contact", "href"), null);
+  assert.equal(await page.getAttribute("#btn-contact", "aria-disabled"), "true");
+  assert.equal(await page.isVisible("#contact-attente"), true);
+  assert.equal(await page.title(), "Mini-cadrage IA fidélité · Simo B.");
   assert.equal(await page.isVisible("#resultat"), false);
   assert.deepEqual(erreurs, []);
   await contexte.close();
@@ -198,24 +200,31 @@ test("mobile (375 px) : pas de défilement horizontal, résultat lisible", async
   await contexte.close();
 });
 
-test("Cal.com renseigné : lien actif, ouverture dans un nouvel onglet", async () => {
-  const { page, contexte } = await ouvrir("/calcom.html");
+test("lien de contact renseigné : bouton actif en nouvel onglet, même lien pour l'exercice des droits", async () => {
+  const { page, contexte } = await ouvrir("/contact.html");
   assert.equal(await page.getAttribute("#btn-contact", "href"), "https://cal.com/exemple/15min");
   assert.equal(await page.getAttribute("#btn-contact", "target"), "_blank");
   assert.match(await page.getAttribute("#btn-contact", "rel"), /noopener/);
-  assert.equal(await page.textContent("#btn-contact"), "Réserver 15 min avec Simo (nouvel onglet)");
+  assert.equal(await page.getAttribute("#btn-contact", "aria-disabled"), null);
+  assert.equal(await page.textContent("#btn-contact"), "Échanger 15 min avec Simo (nouvel onglet)");
+  assert.deepEqual(await page.$$eval("[data-lien-contact]", (liens) => liens.map((l) => [l.href, l.target])), [["https://cal.com/exemple/15min", "_blank"], ["https://cal.com/exemple/15min", "_blank"]]);
+  assert.equal(await page.isVisible("#contact-attente"), false);
   await contexte.close();
 });
 
-test("mode secours publié : ni Cloudflare ni Anthropic, mentions réduites, aucune donnée personnelle hors email", async () => {
+test("page publique : signature « Simo B. », aucun email, aucune adresse, aucun téléphone", async () => {
   const { page, contexte } = await ouvrir();
   await page.evaluate(() => document.querySelectorAll("details").forEach((d) => { d.open = true; }));
   const texte = await page.evaluate(() => document.body.innerText);
   assert.equal(/Cloudflare|Anthropic/.test(texte), false);
-  assert.ok(texte.includes("Éditeur : Mohammed Bouchaanana, consultant indépendant. Contact : m.bouchaanana@gmail.com"));
+  assert.ok(texte.includes("Éditeur : Simo B., consultant indépendant"));
+  assert.ok(texte.includes("Hébergeur : GitHub, Inc."));
   assert.match(texte, /reste dans votre navigateur/);
-  // Garde-fou générique : ni adresse postale ni numéro de téléphone, ni dans le texte affiché ni dans le code de la page.
+  // Garde-fous génériques (règle 6 de CLAUDE.md), dans le texte affiché comme dans le code de la page.
   const motifs = [
+    /[\w.+-]+@[\w-]+\.[\w.-]+/,
+    /mailto:/i,
+    /Simo (?!B\.)\p{Lu}/u,
     /\b\d{1,4}(?:\s?(?:bis|ter))?,?\s+(?:rue|avenue|boulevard|place|allée|impasse|chemin|quai|route)\b/i,
     /\b\d{5}\s+\p{Lu}/u,
     /tel:/i,
