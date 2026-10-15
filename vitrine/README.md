@@ -1,6 +1,6 @@
-# Vitrine « Mini-cadrage IA » (brouillon, non publié)
+# Vitrine « Mini-cadrage IA »
 
-Page vitrine de Simo : un visiteur décrit son programme fidélité et reçoit un mini-cadrage IA en 5 lignes. Elle porte la mention « Réponse générée par IA » et un bouton de rendez-vous Cal.com.
+Page vitrine de Simo : un visiteur décrit son programme fidélité et reçoit un mini-cadrage IA en 5 lignes. Elle porte la mention « Réponse générée par IA » et un bouton de contact (email, puis Cal.com quand le lien sera fourni).
 
 Ce dossier est la **source de travail**. La version publiée (mode secours) est copiée dans le dépôt public `Simo-B/simo-vitrine` : https://simo-b.github.io/simo-vitrine/ (feu vert de Simo le 14/10). Le relais et les tests restent ici.
 
