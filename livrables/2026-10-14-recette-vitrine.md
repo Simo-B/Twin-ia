@@ -413,3 +413,6 @@ Les corrections portent sur `index.html` et `relais/worker.js`. Les tests marqu�
 5. Recette IA réelle réussie : script `cas-ia-reels.mjs` en GO, plus relecture de 20 réponses par Simo.
 6. Après déploiement : rafale réelle limitée et coupe-circuit vérifié.
 
+
+### Décision de Simo (15/10) : mentions légales réduites
+Pour protéger ses données personnelles, Simo a décidé de publier les mentions légales sous la forme « Éditeur : Mohammed Bouchaanana, consultant indépendant. Contact : m.bouchaanana@gmail.com », sans adresse, sans téléphone et sans ligne sur l'hébergeur. Simo prend acte de l'écart avec les repères de la section 9.2. La condition 3 de (a) est donc levée par décision de Simo. Un test automatique bloque désormais toute adresse postale ou tout numéro de téléphone dans la page.

@@ -60,9 +60,8 @@ Preuves IA :
 - **Vos droits** : accès, rectification, effacement, limitation, opposition. Écrivez à m.bouchaanana@gmail.com. Vous pouvez aussi saisir la CNIL (cnil.fr).
 - **Pas de cookies, pas de traceurs.**
 
-### Mentions légales (version publiée)
-- **Éditeur et directeur de la publication** : Mohammed Bouchaanana, consultant indépendant en portage salarial, 2 rue du Prieuré, 78100 Saint-Germain-en-Laye, France. Téléphone : +33 6 68 98 86 77. Email : m.bouchaanana@gmail.com.
-- **Hébergeur** : GitHub, Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, États-Unis. Téléphone : +1 877 448 4820.
+### Mentions légales (version publiée, réduite à la demande de Simo le 15/10)
+- **Éditeur** : Mohammed Bouchaanana, consultant indépendant. Contact : m.bouchaanana@gmail.com
 
 ### À réintroduire à l'activation de l'IA en direct (non publié)
 > Ligne sous le bouton : « En IA en direct, votre texte est transmis à Anthropic (États-Unis) pour générer la réponse. En savoir plus »

@@ -1,7 +1,7 @@
 // Tests automatiques de la page dans un vrai navigateur (Chromium). Le relais est simulé.
 import { test, before, after } from "node:test";
 import assert from "node:assert/strict";
-import { chargerPlaywright, demarrerServeur, variante, RELAIS_TEST, SORTIE_IA } from "./outils-page.mjs";
+import { chargerPlaywright, demarrerServeur, variante, RELAIS_TEST, SORTIE_IA, PAGE } from "./outils-page.mjs";
 
 const { chromium } = chargerPlaywright();
 let navigateur;
@@ -207,14 +207,16 @@ test("Cal.com renseigné : lien actif, ouverture dans un nouvel onglet", async (
   await contexte.close();
 });
 
-test("mode secours publié : ni Cloudflare ni Anthropic dans les textes visibles, mentions légales complètes", async () => {
+test("mode secours publié : ni Cloudflare ni Anthropic, mentions réduites, aucune donnée personnelle hors email", async () => {
   const { page, contexte } = await ouvrir();
   await page.evaluate(() => document.querySelectorAll("details").forEach((d) => { d.open = true; }));
   const texte = await page.evaluate(() => document.body.innerText);
   assert.equal(/Cloudflare|Anthropic/.test(texte), false);
-  for (const attendu of ["consultant indépendant en portage salarial", "2 rue du Prieuré, 78100 Saint-Germain-en-Laye", "+33 6 68 98 86 77", "GitHub, Inc., 88 Colin P. Kelly Jr. Street", "+1 877 448 4820", "rien ne quitte"]) {
-    if (attendu === "rien ne quitte") assert.match(texte, /reste dans votre navigateur/);
-    else assert.ok(texte.includes(attendu), attendu);
+  assert.ok(texte.includes("Éditeur : Mohammed Bouchaanana, consultant indépendant. Contact : m.bouchaanana@gmail.com"));
+  assert.match(texte, /reste dans votre navigateur/);
+  // Garde-fou : ni adresse postale ni numéro de téléphone, ni dans le texte affiché ni dans le code de la page.
+  for (const source of [texte, PAGE]) {
+    assert.equal(/prieur|78100|saint-germain|tel:|(?:\+33|\b0)\s?[1-9](?:[\s.-]?\d{2}){4}/i.test(source), false);
   }
   await contexte.close();
 });
