@@ -8,7 +8,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { chargerPlaywright, demarrerServeur, variante, RELAIS_TEST, SORTIE_IA, PAGE } from "../outils-page.mjs";
+import { chargerPlaywright, demarrerServeur, variante, RELAIS_TEST, SORTIE_IA, PAGE, LIEN_CONTACT } from "../outils-page.mjs";
 import { envComplet, simulerApi, relayerDepuisPlaywright } from "./outils-relais.mjs";
 
 const ici = path.dirname(fileURLToPath(import.meta.url));
@@ -21,9 +21,7 @@ before(async () => {
   serveur = await demarrerServeur({
     "/": variante(),
     "/relais.html": variante({ relais: RELAIS_TEST }),
-    "/relais-lent.html": variante({ relais: RELAIS_TEST }).replace("DELAI_MAX_MS: 25000", "DELAI_MAX_MS: 1500"),
-    "/calcom.html": variante({ contact: "https://cal.com/exemple/15min" }),
-    "/calendly.html": variante({ contact: "https://calendly.com/exemple/15min" })
+    "/relais-lent.html": variante({ relais: RELAIS_TEST }).replace("DELAI_MAX_MS: 25000", "DELAI_MAX_MS: 1500")
   });
   navigateur = await chromium.launch();
 });
@@ -549,15 +547,16 @@ test("T30 conformité : les textes validés par Simo figurent à l'identique dan
   assert.ok(absents.length <= 3, absents.join("\n"));
 });
 
-test("T30 contact : sans lien → bouton inactif et mention d'attente ; tout lien https → bouton actif en nouvel onglet", async (t) => {
-  const r = {};
-  for (const [chemin, cle] of [["/", "reserve"], ["/calcom.html", "calcom"], ["/calendly.html", "calendly"]]) {
-    const { page, contexte } = await ouvrir(chemin);
-    r[cle] = { href: await page.getAttribute("#btn-contact", "href"), inactif: await page.getAttribute("#btn-contact", "aria-disabled"), attente: await page.isVisible("#contact-attente") };
-    await contexte.close();
-  }
+test("T30 contact : bouton « Échanger 15 min avec Simo » actif vers Calendly, nouvel onglet, noopener, sans mention d'attente", async (t) => {
+  const { page, contexte } = await ouvrir("/");
+  const r = {
+    href: await page.getAttribute("#btn-contact", "href"),
+    target: await page.getAttribute("#btn-contact", "target"),
+    rel: await page.getAttribute("#btn-contact", "rel"),
+    inactif: await page.getAttribute("#btn-contact", "aria-disabled"),
+    attente: (await page.$("#contact-attente")) !== null || (await page.textContent("body")).includes("bientôt disponible")
+  };
   t.diagnostic("obtenu : " + JSON.stringify(r));
-  assert.deepEqual(r.reserve, { href: null, inactif: "true", attente: true });
-  assert.deepEqual(r.calcom, { href: "https://cal.com/exemple/15min", inactif: null, attente: false });
-  assert.deepEqual(r.calendly, { href: "https://calendly.com/exemple/15min", inactif: null, attente: false });
+  assert.deepEqual(r, { href: LIEN_CONTACT, target: "_blank", rel: "noopener", inactif: null, attente: false });
+  await contexte.close();
 });

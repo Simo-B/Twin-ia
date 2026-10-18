@@ -20,11 +20,12 @@ export function chargerPlaywright() {
   }
 }
 
-// Variantes de la page : réglages remplacés comme le ferait Simo avant la mise en ligne.
-export function variante({ relais = "", contact = null } = {}) {
-  let html = PAGE.replace('RELAIS_URL: ""', `RELAIS_URL: ${JSON.stringify(relais)}`);
-  if (contact) html = html.replaceAll("{{LIEN_CONTACT}}", contact);
-  return html;
+// Lien de contact de la page : le Calendly de Simo (fourni le 18/10).
+export const LIEN_CONTACT = "https://calendly.com/mb-simo/call-15-min";
+
+// Variantes de la page : adresse du relais remplacée comme le fera le twin à l'activation de l'IA en direct.
+export function variante({ relais = "" } = {}) {
+  return PAGE.replace('RELAIS_URL: ""', `RELAIS_URL: ${JSON.stringify(relais)}`);
 }
 
 export async function demarrerServeur(pages) {

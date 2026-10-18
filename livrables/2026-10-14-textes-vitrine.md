@@ -1,4 +1,4 @@
-> Textes générés par IA (twin de Simo) et **validés par Simo le 14/10** pour la mise en ligne en mode secours, sauf les textes marqués *(18/10, à valider par Simo)* : ils accompagnent le brouillon personnalisé du 18/10 et attendent la relecture de Simo. Les éléments entre {{ }} sont des espaces réservés à compléter.
+> Textes générés par IA (twin de Simo) et **validés par Simo le 14/10** pour la mise en ligne en mode secours, sauf les textes marqués *(18/10, à valider par Simo)* : ils accompagnent le brouillon personnalisé du 18/10 et attendent la relecture de Simo.
 
 # Textes de la page vitrine « Mini-cadrage IA »
 
@@ -39,7 +39,7 @@
 ### Appel à l'action
 - **Titre** : Aller plus loin en 15 minutes
 - **Texte** : On regarde ensemble votre cas, vos données et le premier MVP à lancer.
-- **Bouton** : Échanger 15 min avec Simo (lien {{LIEN_CONTACT}}, ouvert dans un nouvel onglet). Tant que le lien manque : bouton inactif et mention « Lien de contact bientôt disponible. »
+- **Bouton** : Échanger 15 min avec Simo (lien https://calendly.com/mb-simo/call-15-min, fourni par Simo le 18/10, ouvert dans un nouvel onglet)
 
 ### Comment ça marche
 1. Vous décrivez votre programme fidélité.
@@ -60,6 +60,7 @@ Preuves IA :
 - **Votre texte** : Votre texte reste dans votre navigateur : cette page ne l'envoie nulle part, ne le stocke pas et ne le réutilise pas.
 - **Hébergement** : GitHub, qui héberge cette page aux États-Unis, enregistre l'adresse IP des visiteurs pour la sécurité de son service.
 - **Contact** : Si vous contactez Simo, vos informations servent uniquement à vous répondre.
+- **Prise de rendez-vous** *(proposition du 18/10, à valider par Simo ; non publiée)* : La prise de rendez-vous passe par Calendly (États-Unis), qui traite les informations que vous y saisissez (nom, email) pour organiser l'échange.
 - **Responsable et base légale** : Responsable du traitement : Simo B., consultant indépendant. Base légale : intérêt légitime (sécurité du site, réponse à vos demandes).
 - **Vos droits** : accès, rectification, effacement, limitation, opposition. Pour les exercer, passez par le lien « Échanger 15 min avec Simo ». Vous pouvez aussi saisir la CNIL (cnil.fr).
 - **Pas de cookies, pas de traceurs.**
@@ -152,4 +153,4 @@ Ces consignes sont envoyées à Claude Haiku à chaque demande. Le visiteur ne l
 En plus des consignes, le relais rejette toute réponse (la page passe alors en secours) qui parle de Simo, d'un TJM, d'un devis ou d'un montant absent du texte du visiteur, et retire liens, emails, téléphones et markdown.
 
 ## D. Informations manquantes
-- {{LIEN_CONTACT}} : le lien de contact (échange de 15 min, demandes et droits des visiteurs). En attendant, le bouton « Échanger 15 min avec Simo » reste inactif.
+- Lien de contact : fourni par Simo le 18/10 (https://calendly.com/mb-simo/call-15-min). Plus d'information manquante pour la version en mode secours.

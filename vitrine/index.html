@@ -117,7 +117,6 @@
   .appel { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; }
   .appel h2 { margin: 0 0 4px; font-size: 1.25rem; }
   .appel p { margin: 0; color: var(--muted); }
-  .appel .attente { display: block; font-size: .85rem; color: var(--muted); margin-top: 6px; }
 
   section.bloc { padding: 8px 0 16px; }
   section.bloc h2 { font-size: 1.3rem; margin: 16px 0 12px; letter-spacing: -.01em; }
@@ -189,8 +188,7 @@
       <p>On regarde ensemble votre cas, vos données et le premier MVP à lancer.</p>
     </div>
     <div>
-      <a class="bouton" id="btn-contact" data-lien-contact target="_blank" rel="noopener noreferrer">Échanger 15 min avec Simo<span class="visuellement-cache"> (nouvel onglet)</span></a>
-      <span class="attente" id="contact-attente" hidden>Lien de contact bientôt disponible.</span>
+      <a class="bouton" id="btn-contact" href="https://calendly.com/mb-simo/call-15-min" target="_blank" rel="noopener">Échanger 15 min avec Simo<span class="visuellement-cache"> (nouvel onglet)</span></a>
     </div>
   </section>
 
@@ -227,7 +225,7 @@
         <li>Hébergement : GitHub, qui héberge cette page aux États-Unis, enregistre l'adresse IP des visiteurs pour la sécurité de son service.</li>
         <li>Si vous contactez Simo, vos informations servent uniquement à vous répondre.</li>
         <li>Responsable du traitement : Simo B., consultant indépendant. Base légale : intérêt légitime (sécurité du site, réponse à vos demandes).</li>
-        <li>Vos droits : accès, rectification, effacement, limitation, opposition. Pour les exercer, passez par le lien « <a data-lien-contact target="_blank" rel="noopener noreferrer">Échanger 15 min avec Simo</a> ». Vous pouvez aussi saisir la CNIL (cnil.fr).</li>
+        <li>Vos droits : accès, rectification, effacement, limitation, opposition. Pour les exercer, passez par le lien « <a href="https://calendly.com/mb-simo/call-15-min" target="_blank" rel="noopener">Échanger 15 min avec Simo</a> ». Vous pouvez aussi saisir la CNIL (cnil.fr).</li>
         <li>Pas de cookies, pas de traceurs.</li>
       </ul>
     </details>
@@ -254,9 +252,6 @@
 const REGLAGES = {
   // Adresse du relais IA. Vide = mode secours (brouillon généré dans le navigateur à partir du texte du visiteur).
   RELAIS_URL: "",
-  // Lien de contact (échange de 15 min, demandes des visiteurs, exercice de leurs droits).
-  // Tant qu'il n'est pas renseigné, le bouton reste inactif avec la mention « Lien de contact bientôt disponible ».
-  LIEN_CONTACT: "{{LIEN_CONTACT}}",
   MIN_CARACTERES: 30,
   MAX_CARACTERES: 1200,
   DELAI_MAX_MS: 25000
@@ -867,24 +862,6 @@ $("form-cadrage").addEventListener("submit", async (evenement) => {
     blocResultat.removeAttribute("aria-busy");
   }
 });
-
-/* ===== Lien de contact : bouton « Échanger 15 min avec Simo » et exercice des droits ===== */
-(function preparerContact() {
-  const url = REGLAGES.LIEN_CONTACT;
-  const valide = /^https:\/\/[^\s{}<>"]+$/.test(url);
-  for (const lien of document.querySelectorAll("[data-lien-contact]")) {
-    if (valide) {
-      lien.href = url;
-    } else {
-      lien.removeAttribute("href");
-      if (lien.id === "btn-contact") {
-        lien.setAttribute("role", "link");
-        lien.setAttribute("aria-disabled", "true");
-      }
-    }
-  }
-  $("contact-attente").hidden = valide;
-})();
 
 majCompteur();
 </script>

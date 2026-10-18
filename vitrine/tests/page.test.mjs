@@ -1,7 +1,7 @@
 // Tests automatiques de la page dans un vrai navigateur (Chromium). Le relais est simulé.
 import { test, before, after } from "node:test";
 import assert from "node:assert/strict";
-import { chargerPlaywright, demarrerServeur, variante, RELAIS_TEST, SORTIE_IA, PAGE } from "./outils-page.mjs";
+import { chargerPlaywright, demarrerServeur, variante, RELAIS_TEST, SORTIE_IA, PAGE, LIEN_CONTACT } from "./outils-page.mjs";
 
 const { chromium } = chargerPlaywright();
 let navigateur;
@@ -11,7 +11,6 @@ before(async () => {
   serveur = await demarrerServeur({
     "/": variante(),
     "/relais.html": variante({ relais: RELAIS_TEST }),
-    "/contact.html": variante({ contact: "https://cal.com/exemple/15min" }),
     "/relais-interdit.html": variante({ relais: "https://autre-domaine.example.com/cadrage" })
   });
   navigateur = await chromium.launch();
@@ -41,14 +40,15 @@ async function envoyer(page, texte) {
 
 const lignes = (page) => page.$$eval("#lignes li", (lis) => lis.map((li) => li.textContent));
 
-test("chargement : titre, mention IA, bouton de contact inactif tant que le lien manque, aucune erreur", async () => {
+test("chargement : titre, mention IA, bouton de contact actif vers Calendly, aucune erreur", async () => {
   const { page, contexte, erreurs } = await ouvrir();
   assert.equal(await page.textContent("h1"), "Votre programme fidélité, vu par l'IA, en 5\u00a0lignes.");
   assert.match(await page.textContent(".mention-ia"), /Réponse générée par IA\. Vous échangez avec une IA, pas avec Simo\./);
   assert.ok((await page.textContent("#btn-contact")).startsWith("Échanger 15 min avec Simo"));
-  assert.equal(await page.getAttribute("#btn-contact", "href"), null);
-  assert.equal(await page.getAttribute("#btn-contact", "aria-disabled"), "true");
-  assert.equal(await page.isVisible("#contact-attente"), true);
+  assert.equal(await page.getAttribute("#btn-contact", "href"), LIEN_CONTACT);
+  assert.equal(await page.getAttribute("#btn-contact", "aria-disabled"), null);
+  assert.equal(await page.$("#contact-attente"), null);
+  assert.doesNotMatch(await page.textContent("body"), /bientôt disponible/);
   assert.equal(await page.title(), "Mini-cadrage IA fidélité · Simo B.");
   assert.equal(await page.isVisible("#resultat"), false);
   assert.deepEqual(erreurs, []);
@@ -200,15 +200,20 @@ test("mobile (375 px) : pas de défilement horizontal, résultat lisible", async
   await contexte.close();
 });
 
-test("lien de contact renseigné : bouton actif en nouvel onglet, même lien pour l'exercice des droits", async () => {
-  const { page, contexte } = await ouvrir("/contact.html");
-  assert.equal(await page.getAttribute("#btn-contact", "href"), "https://cal.com/exemple/15min");
-  assert.equal(await page.getAttribute("#btn-contact", "target"), "_blank");
-  assert.match(await page.getAttribute("#btn-contact", "rel"), /noopener/);
-  assert.equal(await page.getAttribute("#btn-contact", "aria-disabled"), null);
-  assert.equal(await page.textContent("#btn-contact"), "Échanger 15 min avec Simo (nouvel onglet)");
-  assert.deepEqual(await page.$$eval("[data-lien-contact]", (liens) => liens.map((l) => [l.href, l.target])), [["https://cal.com/exemple/15min", "_blank"], ["https://cal.com/exemple/15min", "_blank"]]);
-  assert.equal(await page.isVisible("#contact-attente"), false);
+test("lien de contact : le bouton ouvre Calendly dans un nouvel onglet (noopener), même lien pour l'exercice des droits", async () => {
+  const { page, contexte } = await ouvrir();
+  // Calendly simulé : aucun appel réseau réel pendant les tests.
+  await contexte.route("https://calendly.com/**", (route) => route.fulfill({ status: 200, contentType: "text/html", body: "<title>Calendly (simulé)</title>" }));
+  assert.deepEqual(await page.$$eval("a[href*='calendly']", (liens) => liens.map((l) => [l.getAttribute("href"), l.target, l.rel, l.textContent])), [
+    [LIEN_CONTACT, "_blank", "noopener", "Échanger 15 min avec Simo (nouvel onglet)"],
+    [LIEN_CONTACT, "_blank", "noopener", "Échanger 15 min avec Simo"]
+  ]);
+  const [onglet] = await Promise.all([contexte.waitForEvent("page"), page.click("#btn-contact")]);
+  await onglet.waitForLoadState();
+  assert.equal(onglet.url(), LIEN_CONTACT);
+  assert.equal(await onglet.evaluate(() => window.opener), null, "noopener : le nouvel onglet n'a aucun accès à la page");
+  assert.equal(await onglet.evaluate(() => document.referrer), "", "Calendly ne reçoit pas l'adresse de la page");
+  assert.equal(page.url(), serveur.base + "/", "la page reste ouverte dans son onglet");
   await contexte.close();
 });
 
