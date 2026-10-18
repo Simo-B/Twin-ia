@@ -13,7 +13,7 @@ Ce dossier est la **source de travail**. La version publiée (mode secours) est 
 | `apercu/` | Les captures d'écran de la page. |
 
 ## Modes
-- **Mode secours** (actuel, `RELAIS_URL` vide) : 5 mini-cadrages préparés à l'avance par IA et relus par Simo, signalés comme tels. Rien ne quitte le navigateur.
+- **Mode secours** (actuel, `RELAIS_URL` vide) : brouillon généré automatiquement dans le navigateur. La page repère dans le texte du visiteur le secteur, la taille de base (avec le calcul des inactifs), les outils cités et l'objectif, puis les combine avec 5 situations types validées par Simo. Le brouillon est affiché comme tel et rien ne quitte le navigateur.
 - **IA en direct** : la page appelle le relais, qui appelle Claude Haiku 5.5. En cas de limite atteinte ou de panne, la page bascule automatiquement sur le mode secours.
 
 ## Aperçu local

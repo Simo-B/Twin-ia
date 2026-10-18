@@ -24,9 +24,13 @@
 
 ### Bloc réponse
 - **Étiquette, IA en direct** : Réponse générée par IA
-- **Étiquette, mode secours** : Mini-cadrage de secours, préparé à l'avance par IA et relu par Simo
-- **Explication, mode secours (IA pas encore activée)** : L'IA en direct n'est pas encore activée. Voici le mini-cadrage préparé qui correspond le mieux à votre description. Il ne tient pas compte du détail de votre texte.
-- **Explication, mode secours (IA indisponible)** : L'IA en direct est momentanément indisponible (limite du jour atteinte ou incident). Voici le mini-cadrage préparé qui correspond le mieux à votre description.
+- **Étiquette, mode secours** *(version du 18/10 : brouillon personnalisé)* : Brouillon généré automatiquement à partir de votre texte
+- **Explication, mode secours (IA pas encore activée)** : L'IA en direct n'est pas encore activée. Ce brouillon est généré automatiquement : il combine la situation type la plus proche avec les éléments repérés dans votre texte.
+- **Explication, mode secours (IA indisponible)** : L'IA en direct est momentanément indisponible (limite du jour atteinte ou incident). Ce brouillon est généré automatiquement : il combine la situation type la plus proche avec les éléments repérés dans votre texte.
+- **Explication, autre situation choisie** : Brouillon recalculé pour cette situation type, avec les éléments repérés dans votre texte.
+- **Éléments repérés** : Repéré dans votre texte : (secteur, base, inactifs, outils, objectif, selon ce que contient le texte du visiteur)
+- **Rien de repéré** : Aucun élément précis repéré (secteur, taille de base, outil, objectif). Ajoutez-les pour un brouillon plus précis.
+- **Sous la réponse, mode secours** : Brouillon généré automatiquement, non relu par Simo. Chiffres et pistes à valider avec vos données.
 - **Aucune situation reconnue (mode secours)** *(validé par Simo le 14/10)* : L'IA en direct n'est pas encore activée (ou : est momentanément indisponible). Je n'ai pas reconnu de situation type dans votre description. Choisissez celle qui se rapproche le plus de la vôtre :
 - **Hors sujet (IA en direct)** : Je réponds uniquement sur les programmes fidélité et le CRM. Décrivez votre programme (secteur, nombre de membres, problème principal) pour recevoir un mini-cadrage.
 - **Sous la réponse** : Brouillon indicatif, non relu par Simo. Chiffres et pistes à valider avec vos données.
@@ -39,7 +43,7 @@
 
 ### Comment ça marche
 1. Vous décrivez votre programme fidélité.
-2. L'IA propose un mini-cadrage en 5 lignes.
+2. Un brouillon de mini-cadrage en 5 lignes est généré à partir de votre texte.
 3. Si vous voulez aller plus loin, on en parle 15 minutes.
 
 ### Qui est derrière
@@ -52,7 +56,7 @@ Preuves IA :
 4. **Cette page elle-même** : elle s'appuie sur son twin IA (base de connaissances, 4 agents, garde-fous), construit sans coder.
 
 ### Transparence et données (version publiée, mode secours, validée par Simo le 14/10)
-- **Une IA, pas Simo** : Les mini-cadrages de cette page ont été préparés à l'avance par IA et relus par Simo. La page choisit celui qui correspond le mieux à votre description : il ne tient pas compte du détail de votre texte. Ce sont des brouillons indicatifs.
+- **Une IA, pas Simo** : Les brouillons de cette page sont générés automatiquement, dans votre navigateur : la page repère dans votre texte le secteur, la taille de votre base, les outils cités et votre objectif, puis les combine avec cinq situations types préparées par IA et relues par Simo. Ce sont des brouillons indicatifs, sans relecture humaine de votre cas.
 - **Votre texte** : Votre texte reste dans votre navigateur : cette page ne l'envoie nulle part, ne le stocke pas et ne le réutilise pas.
 - **Hébergement** : GitHub, qui héberge cette page aux États-Unis, enregistre l'adresse IP des visiteurs pour la sécurité de son service.
 - **Contact** : Si vous contactez Simo, vos informations servent uniquement à vous répondre.
@@ -76,6 +80,14 @@ Preuves IA :
 ---
 
 ## B. Les 5 mini-cadrages de secours
+
+> **Depuis le 18/10, personnalisés avec le texte du visiteur.** Repérage dans le navigateur, rien n'est envoyé : secteur (liste de secteurs), taille de la base (« 2 M de membres », « 300k clients »…), pourcentage d'inactifs (avec le calcul base × %), outils cités, objectif (« Objectif : … », « nous voulons … »). Ce qui est repris :
+> - **Enjeu** : précédé de « Secteur X, N membres : ». Pour la situation « inactifs », la ligne devient « N membres dont P % d'inactifs, soit environ M à réactiver ». Elle se termine par « Objectif annoncé : … » si le texte en contient un.
+> - **Cas recommandé** : précédé de « Avec [outils cités], ».
+> - **MVP en 4 semaines** : S1 commence par « extraction des données de [outils cités] ».
+> - **À confirmer** : précédé des informations absentes du texte (taille de base, outil CRM, objectif), marquées « non précisé(s) dans votre texte ».
+>
+> Aucun chiffre inventé : seuls les chiffres du visiteur et un calcul simple sont repris. Un objectif contenant un lien, des coordonnées, un montant, un devis, un TJM ou le prénom de Simo n'est jamais repris. Les textes de base ci-dessous restent ceux validés par Simo le 14/10.
 
 Chacun s'affiche avec l'étiquette « Mini-cadrage de secours, préparé à l'avance par IA et relu par Simo ». La page choisit le plus proche grâce aux mots-clés du visiteur. Sans correspondance, elle lui demande de choisir.
 

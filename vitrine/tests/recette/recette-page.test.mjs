@@ -65,7 +65,7 @@ test("T01 secours nominal : exemple → « inactifs », 5 lignes, étiquette sec
   await attendreResultat(page);
   assert.equal(await page.textContent("#titre-resultat"), "Situation type : Beaucoup de membres inactifs");
   assert.equal((await lignes(page)).length, 5);
-  assert.match(await page.textContent("#etiquette"), /secours, préparé à l'avance par IA et relu par Simo/);
+  assert.equal(await page.textContent("#etiquette"), "Brouillon généré automatiquement à partir de votre texte");
   assert.deepEqual(requetesSortantes, []);
   assert.deepEqual(erreurs, []);
   t.diagnostic("obtenu : situation « inactifs », 5 lignes, étiquette secours, 0 requête sortante, 0 erreur JS");
@@ -99,7 +99,7 @@ test("T03 secours : aucun mot-clé → choix parmi 5 situations, puis cadrage co
   assert.equal((await lignes(page)).length, 0);
   await page.click(".puce >> text=Remises coûteuses, rentabilité incertaine");
   assert.equal((await lignes(page)).length, 5);
-  assert.match(await page.textContent("#explication"), /préparé à l'avance pour cette situation type/);
+  assert.match(await page.textContent("#explication"), /recalculé pour cette situation type/);
   t.diagnostic("obtenu : 5 puces proposées, 0 ligne, puis 5 lignes après clic");
   await contexte.close();
 });
@@ -240,7 +240,7 @@ test("T11 intégration : 6e demande du même visiteur dans la journée → secou
     }
     assert.deepEqual(statuts, [200, 200, 200, 200, 200, 429]);
     assert.match(await page.textContent("#explication"), /momentanément indisponible/);
-    assert.match(await page.textContent("#etiquette"), /secours/);
+    assert.match(await page.textContent("#etiquette"), /Brouillon généré automatiquement/);
     t.diagnostic(`obtenu : statuts ${statuts.join(", ")} ; la 6e affiche le mini-cadrage de secours`);
     await contexte.close();
   } finally {
@@ -304,7 +304,7 @@ test("T11 IA simulée : limite atteinte (429 visiteur et 429 jour) → secours s
     await envoyer(page, "Nos remises coûtent cher, programme fidélité de 1 M de membres.");
     await attendreResultat(page);
     assert.match(await page.textContent("#explication"), /limite du jour atteinte ou incident/);
-    assert.match(await page.textContent("#etiquette"), /secours/);
+    assert.match(await page.textContent("#etiquette"), /Brouillon généré automatiquement/);
   }
   t.diagnostic("obtenu : explication « momentanément indisponible (limite du jour atteinte ou incident) » + étiquette secours");
   await contexte.close();
@@ -375,15 +375,15 @@ test("T27 transparence : mention IA visible dans chaque état ; mode secours et 
   await page.route(RELAIS_TEST, repondreJson(503, { erreur: "indisponible" }));
   await envoyer(page, "Programme fidélité de 2 M de membres, beaucoup d'inactifs.");
   await attendreResultat(page);
-  etats.indisponible = (await mentionVisible()) && /secours/.test(await page.textContent("#etiquette")) && /momentanément indisponible/.test(await page.textContent("#explication"));
+  etats.indisponible = (await mentionVisible()) && /Brouillon généré automatiquement/.test(await page.textContent("#etiquette")) && /momentanément indisponible/.test(await page.textContent("#explication"));
   await contexte.close();
 
   const s = await ouvrir("/");
   await envoyer(s.page, "Programme fidélité de 2 M de membres, beaucoup d'inactifs.");
   await attendreResultat(s.page);
-  etats.secours = /secours/.test(await s.page.textContent("#etiquette")) && /pas encore activée/.test(await s.page.textContent("#explication")) && /ne tient pas compte du détail/.test(await s.page.textContent("#explication"));
+  etats.secours = /Brouillon généré automatiquement/.test(await s.page.textContent("#etiquette")) && /pas encore activée/.test(await s.page.textContent("#explication")) && /éléments repérés dans votre texte/.test(await s.page.textContent("#explication"));
   etats.piedDePage = (await s.page.textContent("footer")).includes("Vous échangez avec une IA, pas avec Simo");
-  etats.transparence = (await s.page.textContent("details:nth-of-type(1)")).includes("préparés à l'avance par IA et relus par Simo");
+  etats.transparence = (await s.page.textContent("details:nth-of-type(1)")).includes("préparées par IA et relues par Simo");
   await s.contexte.close();
   t.diagnostic("obtenu : " + JSON.stringify(etats));
   assert.ok(Object.values(etats).every(Boolean), JSON.stringify(etats));

@@ -105,6 +105,8 @@
   ol.lignes li { margin: 0 0 10px; padding-left: 4px; }
   .resultat, .explication, ol.lignes li { overflow-wrap: anywhere; }
   ol.lignes li::marker { font-weight: 700; color: var(--accent); }
+  .reperes { font-size: .92rem; margin: 0 0 14px; padding: 10px 12px; border-left: 3px solid var(--accent); background: var(--bg); border-radius: 0 8px 8px 0; overflow-wrap: anywhere; }
+  .reperes strong { color: var(--ink); }
   .note { font-size: .9rem; color: var(--muted); margin: 14px 0 0; padding-top: 12px; border-top: 1px dashed var(--line); }
   .situations { margin-top: 16px; }
   .situations p { margin: 0 0 8px; font-size: .95rem; }
@@ -172,6 +174,7 @@
     <span class="etiquette" id="etiquette"></span>
     <h2 id="titre-resultat">Votre mini-cadrage</h2>
     <p class="explication" id="explication" hidden></p>
+    <p class="reperes" id="reperes" hidden></p>
     <ol class="lignes" id="lignes"></ol>
     <p class="note" id="note">Brouillon indicatif, non relu par Simo. Chiffres et pistes à valider avec vos données.</p>
     <div class="situations" id="situations">
@@ -195,7 +198,7 @@
     <h2 id="titre-etapes">Comment ça marche</h2>
     <ol class="etapes">
       <li>Vous décrivez votre programme fidélité.</li>
-      <li>L'IA propose un mini-cadrage en 5 lignes.</li>
+      <li>Un brouillon de mini-cadrage en 5 lignes est généré à partir de votre texte.</li>
       <li>Si vous voulez aller plus loin, on en parle 15 minutes.</li>
     </ol>
   </section>
@@ -215,7 +218,7 @@
     <h2 id="titre-transparence">Transparence et données</h2>
     <details>
       <summary>Une IA, pas Simo</summary>
-      <p>Les mini-cadrages de cette page ont été préparés à l'avance par IA et relus par Simo. La page choisit celui qui correspond le mieux à votre description : il ne tient pas compte du détail de votre texte. Ce sont des brouillons indicatifs.</p>
+      <p>Les brouillons de cette page sont générés automatiquement, dans votre navigateur : la page repère dans votre texte le secteur, la taille de votre base, les outils cités et votre objectif, puis les combine avec cinq situations types préparées par IA et relues par Simo. Ce sont des brouillons indicatifs, sans relecture humaine de votre cas.</p>
     </details>
     <details>
       <summary>Vos données</summary>
@@ -249,7 +252,7 @@
 
 /* ===== Réglages (seule partie à modifier) ===== */
 const REGLAGES = {
-  // Adresse du relais IA. Vide = mode secours (mini-cadrages préparés à l'avance).
+  // Adresse du relais IA. Vide = mode secours (brouillon généré dans le navigateur à partir du texte du visiteur).
   RELAIS_URL: "",
   // Lien de contact (échange de 15 min, demandes des visiteurs, exercice de leurs droits).
   // Tant qu'il n'est pas renseigné, le bouton reste inactif avec la mention « Lien de contact bientôt disponible ».
@@ -271,24 +274,26 @@ const LIBELLES = {
 
 const TEXTES = {
   etiquetteIA: "Réponse générée par IA",
-  etiquetteSecours: "Mini-cadrage de secours, préparé à l'avance par IA et relu par Simo",
-  secoursNonActive: "L'IA en direct n'est pas encore activée. Voici le mini-cadrage préparé qui correspond le mieux à votre description. Il ne tient pas compte du détail de votre texte.",
-  secoursIndisponible: "L'IA en direct est momentanément indisponible (limite du jour atteinte ou incident). Voici le mini-cadrage préparé qui correspond le mieux à votre description.",
-  secoursChoisi: "Mini-cadrage préparé à l'avance pour cette situation type. Il ne tient pas compte du détail de votre texte.",
+  etiquetteSecours: "Brouillon généré automatiquement à partir de votre texte",
+  secoursNonActive: "L'IA en direct n'est pas encore activée. Ce brouillon est généré automatiquement : il combine la situation type la plus proche avec les éléments repérés dans votre texte.",
+  secoursIndisponible: "L'IA en direct est momentanément indisponible (limite du jour atteinte ou incident). Ce brouillon est généré automatiquement : il combine la situation type la plus proche avec les éléments repérés dans votre texte.",
+  secoursChoisi: "Brouillon recalculé pour cette situation type, avec les éléments repérés dans votre texte.",
+  reperesTitre: "Repéré dans votre texte : ",
+  rienRepere: "Aucun élément précis repéré (secteur, taille de base, outil, objectif). Ajoutez-les pour un brouillon plus précis.",
   aucuneSituation: "Je n'ai pas reconnu de situation type dans votre description. Choisissez celle qui se rapproche le plus de la vôtre :",
   prefixeNonActive: "L'IA en direct n'est pas encore activée.",
   prefixeIndisponible: "L'IA en direct est momentanément indisponible.",
   autreSituation: "Voir une autre situation type :",
   horsSujet: "Je réponds uniquement sur les programmes fidélité et le CRM. Décrivez votre programme (secteur, nombre de membres, problème principal) pour recevoir un mini-cadrage.",
   noteIA: "Brouillon indicatif, non relu par Simo. Chiffres et pistes à valider avec vos données.",
-  noteSecours: "Brouillon indicatif. Chiffres et pistes à valider avec vos données.",
+  noteSecours: "Brouillon généré automatiquement, non relu par Simo. Chiffres et pistes à valider avec vos données.",
   tropCourt: "Ajoutez quelques détails (secteur, nombre de membres, problème principal) pour un mini-cadrage utile.",
   tropLong: "Votre description dépasse 1 200 caractères. Raccourcissez-la un peu.",
   enCours: "Analyse en cours…",
   envoyer: "Obtenir mon mini-cadrage"
 };
 
-/* ===== Les 5 mini-cadrages de secours (validés par Simo) ===== */
+/* ===== Les 5 situations types (textes validés par Simo), personnalisées ensuite avec le texte du visiteur ===== */
 const SITUATIONS = [
   {
     id: "inactifs",
@@ -352,6 +357,180 @@ const SITUATIONS = [
   }
 ];
 
+/* ===== Repérage des éléments du texte du visiteur (tout reste dans le navigateur) ===== */
+// Secteurs : du plus précis au plus général ; « = » impose un mot entier.
+const SECTEURS = [
+  ["mode", ["de mode", "la mode", "pret-a-porter", "habillement", "vetement", "textile", "chaussure", "lingerie"]],
+  ["beauté et cosmétique", ["beaute", "cosmetique", "parfumerie"]],
+  ["luxe", ["=luxe"]],
+  ["hôtellerie", ["hotel", "hotellerie"]],
+  ["restauration", ["restaura", "=cafes", "boulangerie", "fast-food"]],
+  ["cinéma et loisirs", ["cinema", "loisirs", "parc d'attraction", "spectacle"]],
+  ["grande distribution", ["supermarche", "hypermarche", "grande distribution", "alimentaire", "epicerie"]],
+  ["bricolage", ["bricolage"]],
+  ["jardinerie", ["jardinerie"]],
+  ["sport", ["=sport", "sportif", "sportive"]],
+  ["électronique et électroménager", ["electronique", "high-tech", "electromenager"]],
+  ["pharmacie et optique", ["pharmacie", "parapharmacie", "optique", "opticien"]],
+  ["banque et assurance", ["banque", "bancaire", "assurance", "assureur", "mutuelle", "fintech"]],
+  ["énergie", ["energie", "electricite", "fournisseur de gaz"]],
+  ["télécoms", ["telecom", "operateur mobile"]],
+  ["transport et voyage", ["transport", "aerien", "compagnie aerienne", "ferroviaire", "voyage", "tourisme"]],
+  ["automobile", ["automobile", "concession"]],
+  ["ameublement et décoration", ["ameublement", "=meubles", "decoration"]],
+  ["librairie", ["librairie"]],
+  ["jouets", ["jouet"]],
+  ["animalerie", ["animalerie"]],
+  ["e-commerce", ["e-commerce", "ecommerce", "vente en ligne", "site marchand"]],
+  ["retail", ["retail", "enseigne", "magasins", "boutiques", "points de vente"]]
+];
+
+const NOMS_BASE = {
+  membres: "membres", clients: "clients", adherents: "adhérents", porteurs: "porteurs de carte",
+  "porteurs de carte": "porteurs de carte", abonnes: "abonnés", inscrits: "inscrits", comptes: "comptes",
+  titulaires: "titulaires de carte", "titulaires de carte": "titulaires de carte", contacts: "contacts",
+  foyers: "foyers", utilisateurs: "utilisateurs", "cartes fidelite": "cartes fidélité",
+  members: "membres", customers: "clients"
+};
+const MOTIF_BASE = /(\d{1,3}(?:[   .]\d{3})+|\d+(?:[.,]\d+)?)\s*(millions?|milliers?|mille|[mk])?\s*(?:de |d')?(membres|clients|adherents|porteurs(?: de carte)?|abonnes|inscrits|comptes|titulaires(?: de carte)?|contacts|foyers|utilisateurs|cartes fidelite|members|customers)(?![a-z])/;
+const MOTIF_POURCENT = /(\d{1,3}(?:[.,]\d+)?)\s*%/g;
+const SIGNES_INACTIVITE = /inactif|inactiv|dormant|n'achet|sans achat|ne reviennent|churn|attrition|perdu/;
+
+// Outils les plus courants, puis tout nom propre placé juste après un indice (« CRM Xxx », « sous Xxx »…).
+const OUTILS_CONNUS = ["Salesforce Marketing Cloud", "Salesforce", "HubSpot", "Microsoft Dynamics", "Dynamics 365", "SAP", "Adobe Campaign", "Adobe", "Oracle", "Braze", "Klaviyo", "Brevo", "Sendinblue", "Mailchimp", "Zendesk", "Freshdesk", "Intercom", "Shopify", "Magento", "PrestaShop", "Zoho", "Odoo"];
+const MOTIF_INDICE_OUTIL = /(?:^|[^\p{L}])(?:[Cc][Rr][Mm]|[Cc][Dd][Pp]|[Ee][Rr][Pp]|[Oo]util|[Ll]ogiciel|[Pp]lateforme|[Ss]olution|[Rr]outeur|[Tt]icketing|[Ss]ous|[Uu]tilise|[Uu]tilisons|[Uu]tilisent|[Éé]quipés de|[Éé]quipé de)\s*:?\s+(\p{Lu}[\p{L}\d&.-]{1,24}(?:\s\p{Lu}[\p{L}\d&.-]{1,24})?)/gu;
+const MOTS_COMMUNS = new Set(["objectif", "nous", "on", "le", "la", "les", "un", "une", "des", "notre", "nos", "et", "mais", "pour", "avec", "sans", "depuis", "programme", "membres", "clients", "enseigne", "crm", "ia", "il", "elle", "ils", "ce", "cette", "ces", "je", "tous", "toutes", "france", "paris", "excel"]);
+
+const MOTIFS_OBJECTIF = [
+  /\bobjectifs?\s*(?:principal|prioritaire)?\s*(?::|=|–|-|est de|est d'|serait de|serait d'|de |d')\s*(.+)/i,
+  /(?:^|[^\p{L}])(?:nous voulons|nous voudrions|on veut|on voudrait|nous souhaitons|on souhaite|nous aimerions|on aimerait|notre but est de|le but est de|nous cherchons à|on cherche à|l'enjeu est de)\s+(.+)/iu
+];
+
+// Un extrait n'est jamais repris s'il contient un lien, des coordonnées, un montant, un devis, un TJM ou le nom de Simo.
+const MOTIF_EXTRAIT_INTERDIT = /https?:|www\.|\S\s*(?:@|\(at\)|\[at\])\s*\S|(?:\+\d{1,3}[\s.-]?)?\(?0?\d\)?(?:[\s.-]?\d{2}){4}|\d[\d\s.,]*\s?(?:k\s?€|m\s?€|€|euros?\b|\$|dollars?\b)|\b(?:devis|tjm|simo)\b/i;
+
+function nettoyerExtrait(texte) {
+  if (MOTIF_EXTRAIT_INTERDIT.test(texte)) return "";
+  return texte
+    .replace(/<[^>]*>/g, " ")
+    .replace(/[<>{}\[\]`*_#|\\]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function lireNombre(brut, unite) {
+  let chiffres = brut.replace(/[   ]/g, "");
+  if (/^\d{1,3}(\.\d{3})+$/.test(chiffres)) chiffres = chiffres.replace(/\./g, "");
+  let n = Number.parseFloat(chiffres.replace(",", "."));
+  if (unite === "m" || (unite || "").startsWith("million")) n *= 1e6;
+  else if (unite === "k" || unite === "mille" || (unite || "").startsWith("millier")) n *= 1e3;
+  return Number.isFinite(n) ? n : null;
+}
+
+function formaterNombre(n) {
+  if (n >= 1e6) return String(Math.round(n / 1e5) / 10).replace(".", ",") + " M";
+  return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+}
+
+function quantite(n, nom) {
+  if (n >= 1e6) return formaterNombre(n) + (/^[aeiouy]/.test(normaliser(nom)) ? " d'" : " de ") + nom;
+  return formaterNombre(n) + " " + nom;
+}
+
+function listeFr(elements) {
+  if (elements.length <= 1) return elements.join("");
+  return elements.slice(0, -1).join(", ") + " et " + elements[elements.length - 1];
+}
+
+function reperer(description) {
+  const texte = normaliser(description);
+  const reperes = { secteur: null, base: null, inactifs: null, outils: [], objectif: null };
+
+  for (const [libelle, motsCles] of SECTEURS) {
+    if (motsCles.some((mot) => motCleTrouve(texte, mot))) { reperes.secteur = libelle; break; }
+  }
+
+  const base = texte.match(MOTIF_BASE);
+  if (base) {
+    const n = lireNombre(base[1], base[2]);
+    if (n !== null && n >= 10 && n <= 5e9) reperes.base = { n, nom: NOMS_BASE[base[3]], libelle: quantite(n, NOMS_BASE[base[3]]) };
+  }
+
+  for (const m of texte.matchAll(MOTIF_POURCENT)) {
+    const valeur = Number.parseFloat(m[1].replace(",", "."));
+    const autour = texte.slice(Math.max(0, m.index - 40), m.index + m[0].length + 40);
+    if (valeur > 0 && valeur <= 100 && SIGNES_INACTIVITE.test(autour)) {
+      reperes.inactifs = { pct: m[1].replace(".", ","), valeur };
+      if (reperes.base) reperes.inactifs.libelle = quantite(reperes.base.n * valeur / 100, reperes.base.nom);
+      break;
+    }
+  }
+
+  const trouves = [];
+  const ajouterOutil = (nom, position) => {
+    const propre = nom.replace(/[^\p{L}\d&. -]/gu, "").replace(/[.\s]+$/, "").trim().slice(0, 30);
+    const cle = propre.toLowerCase();
+    if (propre.length < 2 || MOTS_COMMUNS.has(cle.split(" ")[0])) return;
+    if (trouves.some((o) => o.nom.toLowerCase().includes(cle) || cle.includes(o.nom.toLowerCase()))) return;
+    trouves.push({ nom: propre, position });
+  };
+  for (const nom of OUTILS_CONNUS) {
+    const m = new RegExp("(^|[^\\p{L}])" + nom.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "($|[^\\p{L}])", "iu").exec(description);
+    if (m) ajouterOutil(nom, m.index);
+  }
+  for (const m of description.matchAll(MOTIF_INDICE_OUTIL)) ajouterOutil(m[1], m.index);
+  reperes.outils = trouves.sort((a, b) => a.position - b.position).slice(0, 3).map((o) => o.nom);
+
+  for (const motif of MOTIFS_OBJECTIF) {
+    const m = description.match(motif);
+    if (!m) continue;
+    let objectif = nettoyerExtrait(m[1].split(/[.!?](?:\s|$)|\n/)[0]).replace(/[\s,;:–-]+$/, "");
+    if (objectif.length > 120) objectif = objectif.slice(0, 120).replace(/\s+\S*$/, "") + "…";
+    if (objectif.length >= 4) {
+      reperes.objectif = /^\p{Lu}\p{Lu}/u.test(objectif) ? objectif : objectif.charAt(0).toLowerCase() + objectif.slice(1);
+      break;
+    }
+  }
+  return reperes;
+}
+
+function decrireReperes(reperes) {
+  const elements = [];
+  if (reperes.secteur) elements.push("secteur : " + reperes.secteur);
+  if (reperes.base) elements.push("base : " + reperes.base.libelle);
+  if (reperes.inactifs) elements.push("inactifs : " + reperes.inactifs.pct + " %");
+  if (reperes.outils.length) elements.push((reperes.outils.length > 1 ? "outils : " : "outil : ") + reperes.outils.join(", "));
+  if (reperes.objectif) elements.push("objectif : " + reperes.objectif);
+  return elements;
+}
+
+// Assemble les 5 lignes : situation type validée + éléments repérés. Aucun chiffre inventé :
+// seuls les chiffres du visiteur et un calcul simple (base × % d'inactifs) sont repris.
+function personnaliser(situation, reperes) {
+  const c = { ...situation.cadrage };
+  const outils = listeFr(reperes.outils);
+  const contexte = [reperes.secteur ? "Secteur " + reperes.secteur : "", reperes.base ? reperes.base.libelle : ""].filter(Boolean).join(", ");
+  const finObjectif = reperes.objectif ? " Objectif annoncé : " + reperes.objectif + "." : "";
+
+  if (situation.id === "inactifs" && reperes.inactifs && reperes.base) {
+    c.enjeu = (reperes.secteur ? "Secteur " + reperes.secteur + " : " : "") + reperes.base.libelle + " dont " + reperes.inactifs.pct + " % d'inactifs, soit environ " + reperes.inactifs.libelle + " à réactiver" + (reperes.objectif ? "." + finObjectif : " sans brader la marge.");
+  } else if (situation.id === "inactifs" && reperes.inactifs) {
+    c.enjeu = (contexte ? contexte + " : " : "") + reperes.inactifs.pct + " % de vos membres n'achètent plus ; chaque point de réactivation vaut du chiffre d'affaires, à condition de ne pas brader la marge." + finObjectif;
+  } else {
+    c.enjeu = (contexte ? contexte + " : " : "") + c.enjeu + finObjectif;
+  }
+  if (outils) {
+    c.cas_recommande = "avec " + outils + ", " + c.cas_recommande;
+    c.mvp_4_semaines = c.mvp_4_semaines.replace(/^S1 /, "S1 extraction des données de " + outils + ", ");
+  }
+  const manquants = [];
+  if (!reperes.base) manquants.push("la taille de votre base");
+  if (!reperes.outils.length && !/outil/.test(c.a_confirmer)) manquants.push("votre outil CRM");
+  if (!reperes.objectif) manquants.push("votre objectif principal");
+  if (manquants.length) c.a_confirmer = listeFr(manquants) + " (non précisé" + (manquants.length > 1 ? "s" : "") + " dans votre texte) ; " + c.a_confirmer;
+  return c;
+}
+
 /* ===== Éléments de la page ===== */
 const $ = (id) => document.getElementById(id);
 const champ = $("description");
@@ -366,6 +545,8 @@ const note = $("note");
 const blocSituations = $("situations");
 const titreSituations = $("titre-situations");
 const puces = $("puces");
+const blocReperes = $("reperes");
+let reperesCourants = null;
 
 /* ===== Outils ===== */
 function normaliser(texte) {
@@ -413,6 +594,8 @@ function viderResultat() {
   puces.replaceChildren();
   explication.hidden = true;
   explication.textContent = "";
+  blocReperes.hidden = true;
+  blocReperes.replaceChildren();
   note.hidden = false;
   blocSituations.hidden = false;
 }
@@ -437,7 +620,7 @@ function afficherPuces(intitule, idActif) {
     bouton.className = "puce";
     bouton.textContent = situation.titre;
     bouton.setAttribute("aria-pressed", String(situation.id === idActif));
-    bouton.addEventListener("click", () => afficherSecours(situation, TEXTES.secoursChoisi));
+    bouton.addEventListener("click", () => afficherSecours(situation, TEXTES.secoursChoisi, reperesCourants));
     puces.append(bouton);
   }
   blocSituations.hidden = false;
@@ -450,26 +633,37 @@ function montrerResultat() {
   blocResultat.scrollIntoView({ behavior: sansAnimation ? "auto" : "smooth", block: "start" });
 }
 
-function afficherSecours(situation, texteExplication) {
+function afficherReperes(reperes) {
+  const elements = decrireReperes(reperes || { outils: [] });
+  const titre = document.createElement("strong");
+  titre.textContent = TEXTES.reperesTitre;
+  blocReperes.replaceChildren(titre, document.createTextNode(typographie(elements.length ? majuscule(elements.join(" · ")) + "." : TEXTES.rienRepere)));
+  blocReperes.hidden = false;
+}
+
+function afficherSecours(situation, texteExplication, reperes) {
   viderResultat();
   etiquette.className = "etiquette secours";
   etiquette.textContent = TEXTES.etiquetteSecours;
   $("titre-resultat").textContent = "Situation type : " + situation.titre;
   explication.textContent = texteExplication;
   explication.hidden = false;
-  afficherLignes(Object.fromEntries(Object.entries(situation.cadrage).map(([k, v]) => [k, majuscule(v)])));
+  afficherReperes(reperes);
+  const cadrage = personnaliser(situation, reperes || { outils: [] });
+  afficherLignes(Object.fromEntries(Object.entries(cadrage).map(([k, v]) => [k, majuscule(v)])));
   note.textContent = TEXTES.noteSecours;
   afficherPuces(TEXTES.autreSituation, situation.id);
   montrerResultat();
 }
 
-function afficherAucuneSituation(prefixe) {
+function afficherAucuneSituation(prefixe, reperes) {
   viderResultat();
   etiquette.className = "etiquette secours";
   etiquette.textContent = TEXTES.etiquetteSecours;
   $("titre-resultat").textContent = "Choisissez une situation type";
   explication.textContent = prefixe + " " + TEXTES.aucuneSituation;
   explication.hidden = false;
+  afficherReperes(reperes);
   note.hidden = true;
   afficherPuces("Situations types :", null);
   montrerResultat();
@@ -499,9 +693,10 @@ function afficherHorsSujet() {
 }
 
 function secoursPour(description, indisponible) {
+  reperesCourants = reperer(description);
   const situation = situationLaPlusProche(description);
-  if (situation) afficherSecours(situation, indisponible ? TEXTES.secoursIndisponible : TEXTES.secoursNonActive);
-  else afficherAucuneSituation(indisponible ? TEXTES.prefixeIndisponible : TEXTES.prefixeNonActive);
+  if (situation) afficherSecours(situation, indisponible ? TEXTES.secoursIndisponible : TEXTES.secoursNonActive, reperesCourants);
+  else afficherAucuneSituation(indisponible ? TEXTES.prefixeIndisponible : TEXTES.prefixeNonActive, reperesCourants);
 }
 
 /* ===== Appel au relais (IA en direct) ===== */
