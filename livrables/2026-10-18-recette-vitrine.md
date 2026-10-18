@@ -345,3 +345,34 @@ Autres contrôles : captures régénérées (identiques : l'exemple donne le mê
 - **(a) Mode secours personnalisé** : conditions 2, 3 et 5 remplies (zéro chiffre ou fait faux sur la suite, filtre complet, contre-recette 126/126). Publication demandée explicitement par Simo le 18/10 (« pousse sur Simo-vitrine »). Restent ouverts : D29 (condition 1, décision de Simo) ; validation des textes du 18/10 et recette métier sur 10 descriptions de Simo (condition 4).
 - **(b) IA en direct** : toujours **NO-GO**, faute d'accord de dépense (règle 5). Conditions 2 (guide) et 3 (D26) remplies.
 
+## 16. Suite du 18/10 au soir : lien Calendly et purge de l'historique public (D29)
+
+**Lien de contact** : https://calendly.com/mb-simo/call-15-min, fourni par Simo. Il est écrit directement dans le bouton « Échanger 15 min avec Simo » et dans le lien « Vos droits », avec nouvel onglet et `rel="noopener"`. La page garde sa politique « no-referrer ». La mention « Lien de contact bientôt disponible » est retirée. L'adresse ne contient pas le nom de famille. Recette complète : 126/126.
+
+**Purge (D29), sur demande de Simo** : la branche `main` de `Simo-B/Simo-vitrine` a été réécrite, puis publiée en forçant (`--force-with-lease`). Elle contient 2 commits propres :
+- `141aca7` : le contenu publié le 18/10, en un seul commit ;
+- `5f92e14` : le lien Calendly.
+
+Chaque fichier de chaque commit, messages compris, a été contrôlé par motifs génériques : 0 occurrence.
+
+**Vérifications en ligne** :
+- fichier publié identique au fichier testé (même empreinte) ;
+- déploiement GitHub Pages réussi pour `5f92e14` ;
+- clic testé dans Chromium sur le fichier exactement publié : nouvel onglet sur le lien Calendly, `window.opener` nul, aucun referrer transmis.
+
+Le réseau de la session bloque `calendly.com` et `simo-b.github.io` : la page Calendly elle-même n'a pas pu être ouverte d'ici.
+
+**Reste ouvert, D29 (bloquant, règle 6)** : GitHub garde les anciens commits accessibles par leur identifiant. Les 4 répondent encore à l'API publique. Le fil d'activité public du dépôt cite toujours les poussées du 15/10, dont `6454ec7`, qui contient le nom de famille et l'email. La purge de `main` ne suffit donc pas à les effacer.
+
+Deux façons de finir :
+1. **Recommandé : supprimer puis recréer le dépôt** (environ 5 minutes, page hors ligne quelques minutes) :
+   - Simo : Settings → General → Danger Zone → Delete this repository ;
+   - Simo : nouveau dépôt public `Simo-vitrine`, vide, sans README ;
+   - le twin repousse les 2 commits propres ;
+   - Simo : Settings → Pages → Deploy from a branch → `main`, dossier racine → Save.
+
+   Activité, anciens commits et anciens déploiements disparaissent avec l'ancien dépôt.
+2. **Demande au support GitHub**, depuis le compte de Simo : suppression des vues en cache et des commits orphelins du dépôt. C'est plus lent.
+
+**À vérifier par Simo** : la page Calendly s'ouvre, et le nom affiché sur son profil Calendly ne montre pas son nom de famille (règle 6). Sinon, mettre « Simo B. » dans les réglages du profil Calendly.
+
