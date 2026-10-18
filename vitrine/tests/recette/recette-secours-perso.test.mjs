@@ -5,8 +5,8 @@
 // Données fictives uniquement. Aucun appel réseau : la page est servie en local, le relais n'est pas branché
 // (R01 : relais réel avec API Anthropic simulée).
 // Lancer : cd vitrine && node --test tests/recette/recette-secours-perso.test.mjs
-// Les tests « todo » décrivent le comportement attendu et documentent un défaut (D18 à D26,
-// voir livrables/2026-10-18-recette-vitrine.md). Ils passeront au vert une fois le défaut corrigé.
+// Les défauts D18 à D26 (voir livrables/2026-10-18-recette-vitrine.md) sont corrigés depuis la contre-recette du 18/10 :
+// leurs tests, d'abord marqués « todo », sont au vert. Un nouveau défaut s'ajoute ici en « todo » avant sa correction.
 import { test, before, after } from "node:test";
 import assert from "node:assert/strict";
 import { chargerPlaywright, demarrerServeur, variante } from "../outils-page.mjs";
@@ -174,8 +174,25 @@ test("S05 nominal · bricolage, doublons : « 2,5 M de clients », objectif abse
   assert.equal(r.situation, "donnees");
   assert.ok(normer(r.reperes).startsWith("Repéré dans votre texte : Secteur : bricolage · base : 2,5 M de clients"));
   assert.match(normer(r.lignes[0]), /^Enjeu : Secteur bricolage, 2,5 M de clients : un même client existe plusieurs fois/);
-  assert.match(normer(r.lignes[4]), /votre objectif principal \(non précisé dans votre texte\)/);
+  assert.match(normer(r.lignes[4]), /^À confirmer : Votre objectif principal \(non précisé dans votre texte\) ;/);
   assert.deepEqual(await chiffresInventes(r, texte), []);
+});
+
+test("S26 nominal · outil hors de la liste connue, en fin de phrase (Splio, Selligent, Actito, Comarch) : nom de l'outil seul", async (t) => {
+  const cas = [
+    ["Réseau de cinémas, 300k abonnés, 40 % d'inactifs, nous utilisons Splio. Objectif : relancer l'engagement.", "Splio"],
+    ["Enseigne de mode, 2 M de membres, CRM Selligent. Nous voulons réactiver les inactifs.", "Selligent"],
+    ["Programme fidélité de 500 000 membres, routeur Actito. Le taux d'ouverture des emails baisse.", "Actito"],
+    ["Hôtels, 900 000 membres, CRM Comarch. Beaucoup de doublons dans le référentiel client.", "Comarch"]
+  ];
+  const obtenus = [];
+  for (const [texte] of cas) {
+    const r = await essayer(texte);
+    verifierEtiquetage(r);
+    obtenus.push({ outils: r.reperesObj.outils, cas: normer(r.lignes[1]).slice(0, 45) });
+  }
+  t.diagnostic("obtenu : " + obtenus.map((o) => `${JSON.stringify(o.outils)} → « ${o.cas}… »`).join(" | "));
+  assert.deepEqual(obtenus.map((o) => o.outils), cas.map((c) => [c[1]]));
 });
 
 /* ===== Cas limites ===== */
@@ -200,7 +217,7 @@ test("S07 limite · plusieurs nombres (magasins, années, niveaux) : la bonne ba
   assert.deepEqual(await chiffresInventes(r, texte, ["525 000"]), []);
 });
 
-test("S08 limite · plusieurs pourcentages : seul le % d'inactifs est repris et sert au calcul", { todo: "D18 pourcentage d'inactifs mal attribué (premier % proche d'un mot d'inactivité)" }, async (t) => {
+test("S08 limite · plusieurs pourcentages : seul le % d'inactifs est repris et sert au calcul", async (t) => {
   const cas = [
     ["Taux d'ouverture des emails de 12 %, et 40 % d'inactifs sur 500 000 membres.", "40"],
     ["Nous avons perdu 15 % de chiffre d'affaires ; 500 000 membres, 40 % d'inactifs.", "40"],
@@ -223,7 +240,7 @@ test("S08 limite · plusieurs pourcentages : seul le % d'inactifs est repris et 
   assert.match(enjeuInactifs, /500 000 membres dont 40 % d'inactifs, soit environ 200 000 membres/);
 });
 
-test("S09 limite · mots ambigus (« mode de paiement », « dans une optique de », « frais de transport »…) : bon secteur", { todo: "D19 secteur faux : mot courant pris pour un secteur, et premier secteur de la liste prioritaire" }, async (t) => {
+test("S09 limite · mots ambigus (« mode de paiement », « dans une optique de », « frais de transport »…) : bon secteur", async (t) => {
   const cas = [
     ["Banque en ligne : 500 000 clients changent rarement de mode de paiement, beaucoup d'inactifs.", "banque et assurance"],
     ["Opérateur télécom, 3 M d'abonnés, dans une optique de fidélisation nous voulons réduire le churn.", "télécoms"],
@@ -250,7 +267,7 @@ test("S10 limite · « sous les radars » (deux fois) : aucun faux outil", async
   t.diagnostic(`obtenu : ${normer(r.reperes)}`);
   assert.equal(normer(r.reperes), "Repéré dans votre texte : Secteur : sport · base : 50 000 clients · inactifs : 30 %.");
   assert.equal(normer(r.lignes[0]), "Enjeu : Secteur sport : 50 000 clients dont 30 % d'inactifs, soit environ 15 000 clients à réactiver sans brader la marge.");
-  assert.match(normer(r.lignes[4]), /votre outil CRM et votre objectif principal \(non précisés dans votre texte\)/);
+  assert.match(normer(r.lignes[4]), /^À confirmer : Votre outil CRM et votre objectif principal \(non précisés dans votre texte\) ;/);
   assert.deepEqual(await chiffresInventes(r, texte, ["15 000"]), []);
 });
 
@@ -276,12 +293,12 @@ test("S12 limite · décimales (« 2,5 M », « 12,5 % ») : reprises telles que
   const r = await essayer(texte);
   verifierEtiquetage(r);
   t.diagnostic(`obtenu : ${normer(r.lignes[0])}`);
-  assert.ok(normer(r.reperes).includes("base : 2,5 M de membres · inactifs : 12,5 % · outil : Salesforce"));
+  assert.equal(normer(r.reperes), "Repéré dans votre texte : Base : 2,5 M de membres · inactifs : 12,5 % · outil : Salesforce.");
   assert.equal(normer(r.lignes[0]), "Enjeu : 2,5 M de membres dont 12,5 % d'inactifs, soit environ 312 500 membres à réactiver sans brader la marge.");
   assert.deepEqual(await chiffresInventes(r, texte, ["312 500"]), []);
 });
 
-test("S12b limite · décimales fines (« 1,25 million », « 1 234 567 ») : la base affichée est celle du visiteur", { todo: "D21 base arrondie à une décimale (1,25 → 1,3 M), incohérente avec le calcul affiché" }, async (t) => {
+test("S12b limite · décimales fines (« 1,25 million », « 1 234 567 ») : la base affichée est celle du visiteur", async (t) => {
   const cas = [
     ["Programme de 1,25 million de membres, 33,3 % d'inactifs, CRM Salesforce.", ["416 250"]],
     ["Programme de 1 234 567 clients, 20 % d'inactifs.", ["246 913"]]
@@ -304,11 +321,11 @@ test("S13 limite · texte en anglais : « 2 million customers », « 30% inactiv
   t.diagnostic(`obtenu : ${normer(r.reperes)} | ${normer(r.lignes[0])}`);
   assert.equal(normer(r.reperes), "Repéré dans votre texte : Base : 2 M de clients · inactifs : 30 % · outil : HubSpot.");
   assert.equal(normer(r.lignes[0]), "Enjeu : 2 M de clients dont 30 % d'inactifs, soit environ 600 000 clients à réactiver sans brader la marge.");
-  assert.match(normer(r.lignes[4]), /votre objectif principal \(non précisé dans votre texte\)/);
+  assert.match(normer(r.lignes[4]), /^À confirmer : Votre objectif principal \(non précisé dans votre texte\) ;/);
   assert.deepEqual(await chiffresInventes(r, texte, ["600 000"]), []);
 });
 
-test("S13b limite · séparateur de milliers anglais (« 1,200,000 members », « 15,000 membres ») : base et calcul justes", { todo: "D20 « 1,200,000 » lu 200 et « 15,000 » lu 15 : base et calcul faux" }, async (t) => {
+test("S13b limite · séparateur de milliers anglais (« 1,200,000 members », « 15,000 membres ») : base et calcul justes", async (t) => {
   const cas = [
     ["Fashion retailer with 1,200,000 members, 60% inactive, Salesforce CRM. Goal: reactivate them without discounting.", "1,2 M de membres", "720 000 membres"],
     ["Programme de 15,000 membres avec 20 % d'inactifs.", "15 000 membres", "3 000 membres"]
@@ -321,7 +338,7 @@ test("S13b limite · séparateur de milliers anglais (« 1,200,000 members », �
   }
   t.diagnostic("obtenu : " + obtenus.map((o) => o.enjeu).join(" | "));
   cas.forEach(([, base, calcul], i) => {
-    assert.ok(obtenus[i].reperes.includes("base : " + base), obtenus[i].reperes);
+    assert.ok(obtenus[i].reperes.toLowerCase().includes(("base : " + base).toLowerCase()), obtenus[i].reperes);
     assert.ok(obtenus[i].enjeu.includes("soit environ " + calcul), obtenus[i].enjeu);
   });
 });
@@ -366,22 +383,23 @@ test("S16 adverse · code et HTML dans l'objectif et dans un nom d'outil : rien 
 
 test("S17 adverse · coordonnées fictives (email, téléphone, adresse) hors objectif ou dans l'objectif : jamais reprises", async (t) => {
   const cas = [
-    "Programme de 300 000 membres. Mon email : jean.dupont@exemple.test, tél. 06 12 34 56 78, 12 rue des Lilas 75011 Paris. Beaucoup d'inactifs.",
-    "Programme avec 40 % d'inactifs. Objectif : rappelez-moi au +33 6 12 34 56 78 pour réactiver.",
+    "Programme de 300 000 membres. Mon email : jean.dupont@exemple.test, tél. 06 39 98 12 34, 12 rue de l'Exemple 75000 Paris. Beaucoup d'inactifs.",
+    "Programme avec 40 % d'inactifs. Objectif : rappelez-moi au +33 6 39 98 12 34 pour réactiver.",
     "Programme avec 40 % d'inactifs. Objectif : écrire à jean.dupont (at) exemple.test pour réactiver.",
-    "Programme avec 40 % d'inactifs. Objectif : appeler le 06.12.34.56.78 ou le 0612345678 pour réactiver."
+    "Programme avec 40 % d'inactifs. Objectif : appeler le 06.39.98.12.34 ou le 0639981234 pour réactiver."
   ];
+  // Numéros pris dans la plage réservée aux œuvres de fiction (06 39 98 xx xx), adresse fictive.
   for (const texte of cas) {
     const r = await essayer(texte);
     verifierEtiquetage(r);
-    assert.doesNotMatch(affiche(r), /@|\(at\)|exemple\.test|jean|dupont|06[ .]?12|\+33|0612345678|rue des Lilas|75011|Objectif annoncé/i, texte);
+    assert.doesNotMatch(affiche(r), /@|\(at\)|exemple\.test|jean|dupont|06[ .]?39|\+33|0639981234|rue de l'Exemple|75000|Objectif annoncé/i, texte);
   }
   t.diagnostic("obtenu : 4/4 textes sans aucune coordonnée reprise ; objectifs avec téléphone ou email écartés");
 });
 
-test("S17b adverse · adresse dans l'objectif, email dans un nom d'outil, domaine cité comme outil : jamais repris", { todo: "D22 filtre des extraits incomplet (adresse postale ; noms d'outils non filtrés)" }, async (t) => {
+test("S17b adverse · adresse dans l'objectif, email dans un nom d'outil, domaine cité comme outil : jamais repris", async (t) => {
   const cas = [
-    "Programme de 40 % d'inactifs. Objectif : envoyer les cartes au 12 rue des Lilas, 75011 Paris.",
+    "Programme de 40 % d'inactifs. Objectif : envoyer les cartes au 12 rue de l'Exemple, 75000 Paris.",
     "Programme de 40 % d'inactifs, CRM Prenom.Nom@exemple.test pour la réactivation.",
     "Programme fidélité, 40 % d'inactifs, nous utilisons Promo-arnaque.fr et Brevo."
   ];
@@ -389,7 +407,7 @@ test("S17b adverse · adresse dans l'objectif, email dans un nom d'outil, domain
   for (const texte of cas) {
     const r = await essayer(texte);
     verifierEtiquetage(r);
-    const m = affiche(r).match(/rue des Lilas[^|]*|Prenom\.Nom|Promo-arnaque\.fr/i);
+    const m = affiche(r).match(/rue de l'Exemple[^|]*|Prenom\.Nom|Promo-arnaque\.fr/i);
     fuites.push(m ? m[0] : null);
   }
   t.diagnostic("obtenu (repris sur la page) : " + JSON.stringify(fuites));
@@ -425,7 +443,7 @@ test("S19 adverse · montants en €, devis, TJM : jamais repris", async (t) => 
   assert.match(premiers[0], /500 000 membres dont 30 % d'inactifs, soit environ 150 000 membres/);
 });
 
-test("S19b adverse · montants en « EUR », « $50,000 », « USD » dans l'objectif : jamais repris", { todo: "D22 filtre des montants limité à €, euros, dollars et « nombre $ »" }, async (t) => {
+test("S19b adverse · montants en « EUR », « $50,000 », « USD » dans l'objectif : jamais repris", async (t) => {
   const cas = [
     "Programme avec 40 % d'inactifs. Objectif : économiser 200 000 EUR sur les remises.",
     "Programme avec 40 % d'inactifs. Objectif : économiser $50,000 sur les remises.",
@@ -441,7 +459,7 @@ test("S19b adverse · montants en « EUR », « $50,000 », « USD » dans l'obj
   assert.deepEqual(repris, [null, null, null]);
 });
 
-test("S20 adverse · propos injurieux dans l'objectif ou comme nom d'outil : jamais repris", { todo: "D23 aucun filtre des injures dans les extraits repris" }, async (t) => {
+test("S20 adverse · propos injurieux dans l'objectif ou comme nom d'outil : jamais repris", async (t) => {
   const cas = [
     "Nos clients sont des abrutis. 40 % d'inactifs. Objectif : virer ces cons de clients inactifs.",
     "Programme fidélité, 40 % d'inactifs, nous utilisons Connard et Brevo."
@@ -472,7 +490,7 @@ test("S21 adverse · nom de famille via l'objectif (prénom de Simo + nom fictif
   t.diagnostic("obtenu : 3/3 objectifs contenant le prénom écartés ; aucun nom affiché");
 });
 
-test("S21b adverse · nom de famille via un nom d'outil (« CRM <prénom de Simo> Nomfictif », « sous Marie Martin ») : jamais repris", { todo: "D22 noms d'outils non filtrés (prénom de Simo, noms de personnes)" }, async (t) => {
+test("S21b adverse · nom de famille via un nom d'outil (« CRM <prénom de Simo> Nomfictif », « sous Marie Martin ») : jamais repris", async (t) => {
   const cas = [
     `Programme fidélité, 40 % d'inactifs, notre CRM ${PRENOM} Nomfictif depuis 2020.`,
     "Programme fidélité, 40 % d'inactifs. L'équipe CRM, sous Marie Martin, utilise Brevo."
@@ -534,7 +552,7 @@ test("S24 transverse · sur l'ensemble des cas : aucune requête sortante, aucun
   assert.deepEqual([bureau.sortantes, reseau, bureau.erreurs], [[], [], []]);
 });
 
-test("S25 finitions · outil composé repris une fois, ponctuation, « Objectifs-clés », objectif écarté non présenté comme absent", { todo: "D24 finitions du texte personnalisé" }, async (t) => {
+test("S25 finitions · outil composé repris une fois, ponctuation, « Objectifs-clés », objectif écarté non présenté comme absent", async (t) => {
   const r1 = await essayer("Enseigne de bricolage, 2,5 M de clients, beaucoup de doublons dans le référentiel client, sous Microsoft Dynamics 365.");
   const r2 = await essayer("Programme de 40 % d'inactifs. Objectif : réactiver les membres dormants grâce à une campagne de reconquête multicanale très ambitieuse, personnalisée, mesurée contre un groupe témoin et pilotée chaque semaine.");
   const r3 = await essayer("Programme de 40 % d'inactifs. Objectifs-clés : réactiver et fidéliser.");
@@ -547,7 +565,7 @@ test("S25 finitions · outil composé repris une fois, ponctuation, « Objectifs
 });
 
 /* ===== Complément à la relecture du guide (étape 4) : relais réel, API simulée ===== */
-test("R01 relais · texte de 1 200 caractères au plus : la taille envoyée au modèle reste bornée après normalisation", { todo: "D26 normalisation NFKC faite après le contrôle de longueur (×18 possible)" }, async (t) => {
+test("R01 relais · texte de 1 200 caractères au plus : la taille envoyée au modèle reste bornée après normalisation", async (t) => {
   const api = simulerApi();
   try {
     const description = "Programme fidélité, beaucoup d'inactifs. " + "ﷺ".repeat(1100);

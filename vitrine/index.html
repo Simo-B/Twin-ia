@@ -358,7 +358,8 @@ const SITUATIONS = [
 ];
 
 /* ===== Repérage des éléments du texte du visiteur (tout reste dans le navigateur) ===== */
-// Secteurs : du plus précis au plus général ; « = » impose un mot entier.
+// Secteurs : on retient celui que le visiteur nomme en premier ; « e-commerce » et « retail » seulement à défaut.
+// « = » impose un mot entier.
 const SECTEURS = [
   ["mode", ["de mode", "la mode", "pret-a-porter", "habillement", "vetement", "textile", "chaussure", "lingerie"]],
   ["beauté et cosmétique", ["beaute", "cosmetique", "parfumerie"]],
@@ -373,17 +374,35 @@ const SECTEURS = [
   ["électronique et électroménager", ["electronique", "high-tech", "electromenager"]],
   ["pharmacie et optique", ["pharmacie", "parapharmacie", "optique", "opticien"]],
   ["banque et assurance", ["banque", "bancaire", "assurance", "assureur", "mutuelle", "fintech"]],
-  ["énergie", ["energie", "electricite", "fournisseur de gaz"]],
-  ["télécoms", ["telecom", "operateur mobile"]],
+  ["énergie", ["energie", "energeticien", "electricite", "fournisseur de gaz"]],
+  ["télécoms", ["=telecom", "=telecoms", "telecommunication", "operateur mobile"]],
   ["transport et voyage", ["transport", "aerien", "compagnie aerienne", "ferroviaire", "voyage", "tourisme"]],
-  ["automobile", ["automobile", "concession"]],
+  ["automobile", ["automobile", "concessionnaire"]],
   ["ameublement et décoration", ["ameublement", "=meubles", "decoration"]],
   ["librairie", ["librairie"]],
   ["jouets", ["jouet"]],
-  ["animalerie", ["animalerie"]],
+  ["animalerie", ["animalerie"]]
+];
+const SECTEURS_PAR_DEFAUT = [
   ["e-commerce", ["e-commerce", "ecommerce", "vente en ligne", "site marchand"]],
   ["retail", ["retail", "enseigne", "magasins", "boutiques", "points de vente"]]
 ];
+// Expressions courantes qui contiennent un mot de secteur sans parler de secteur (« mode de paiement », « dans une optique de »…).
+const EXPRESSIONS_FIGEES = new RegExp([
+  "\\bmodes? (?:de |d')(?:paiement|livraison|reglement|retrait|vie|fonctionnement|emploi|calcul|contact|communication|consommation|achat|transport|connexion|gestion|relation|envoi)",
+  "\\ba la mode\\b",
+  "\\b(?:dans |selon )?(?:une|l'|cette|notre|leur|son) ?optique (?:de |d')",
+  "\\bdans (?:cette|notre|leur|son) optique\\b",
+  "\\b(?:frais|couts?|delais?) (?:de |du |d')transports?\\b",
+  "\\bl'energie (?:de |d'|des |du )",
+  "\\b(?:toute|notre|votre|leur|son|beaucoup|trop|peu) (?:d'|l')?energie\\b",
+  "\\brestauration (?:de |du |des |d')(?:la |l')?(?:marges?|rentabilite|confiance|relation|image|lien|qualite|fidelite)",
+  "\\bassurance qualite\\b",
+  "\\bbanques? (?:de |d')(?:donnees|images|photos)\\b",
+  "\\b(?:cartes?|frais|virements?|coordonnees|donnees) bancaires?\\b",
+  "\\b(?:courriers?|adresses?|messages?|signatures?|tickets?|factures?|cartes?|portefeuilles?|paiements?|bons?) electroniques?\\b",
+  "\\bhotels? de ville\\b"
+].join("|"), "g");
 
 const NOMS_BASE = {
   membres: "membres", clients: "clients", adherents: "adhérents", porteurs: "porteurs de carte",
@@ -392,49 +411,86 @@ const NOMS_BASE = {
   foyers: "foyers", utilisateurs: "utilisateurs", "cartes fidelite": "cartes fidélité",
   members: "membres", customers: "clients"
 };
-const MOTIF_BASE = /(\d{1,3}(?:[   .]\d{3})+|\d+(?:[.,]\d+)?)\s*(millions?|milliers?|mille|[mk])?\s*(?:de |d')?(membres|clients|adherents|porteurs(?: de carte)?|abonnes|inscrits|comptes|titulaires(?: de carte)?|contacts|foyers|utilisateurs|cartes fidelite|members|customers)(?![a-z])/;
-const MOTIF_POURCENT = /(\d{1,3}(?:[.,]\d+)?)\s*%/g;
-const SIGNES_INACTIVITE = /inactif|inactiv|dormant|n'achet|sans achat|ne reviennent|churn|attrition|perdu/;
+// Taille de base : « 800 000 membres », « 1,2 million d'adhérents », « 300k clients », « 1,200,000 members »…
+const MOTIF_BASE = /(?:^|[^\d.,])(\d{1,3}(?:[   .,]\d{3})+|\d+(?:[.,]\d+)?)\s*(millions?|milliers?|mille|[mk])?\s*(?:de |d')?(membres|clients|adherents|porteurs(?: de carte)?|abonnes|inscrits|comptes|titulaires(?: de carte)?|contacts|foyers|utilisateurs|cartes fidelite|members|customers)(?![a-z])/;
+const MOTIF_POURCENT = /(?:^|[^\d.,])(\d{1,3}(?:[.,]\d+)?)\s*%/g;
+// Part d'inactifs : seulement un % rattaché à un mot d'inactivité, juste après (« 40 % d'inactifs », « 40 % de nos membres
+// sont inactifs ») ou juste avant (« inactifs : 40 % », « taux d'inactivité de 40 % »). Entre les deux, seuls quelques mots
+// de liaison sont admis. Taux d'ouverture, perte de CA ou churn ne comptent pas ; dans le doute, rien n'est repris.
+const MOTIF_INACTIFS_APRES = /^\s*(?:d'|n'|(?:de|des|du|la|le|les|nos|notre|vos|votre|leurs?|ses|ces|sont|est|restent|reste|deviennent|qui|ne|ont|n'ont|plus|pas|jamais|deja|comme|considerees?|consideres?|actuellement|aujourd'hui|environ|membres|clients?|porteurs|adherents|abonnes|inscrits|comptes|titulaires|cartes?|foyers|contacts|utilisateurs|base|fichier|programme|\d+(?:[.,]\d+)?|m|k|millions?|are|of|our|the|members|customers)\s+)*(?:inactif|inactiv|dormant|n'achet|sans achat|aucun achat|(?:pas|plus) r?achete|ne (?:re)?viennent|ne rachet)/;
+const MOTIF_INACTIFS_AVANT = /(?:inactifs?|inactives?|inactivite|dormants?)\s*[:=(–-]?\s*(?:(?:de|d'|a|est|sont|soit|environ|pres de|plus de|autour de|represente|representent)\s*)*$/;
 
 // Outils les plus courants, puis tout nom propre placé juste après un indice (« CRM Xxx », « sous Xxx »…).
-const OUTILS_CONNUS = ["Salesforce Marketing Cloud", "Salesforce", "HubSpot", "Microsoft Dynamics", "Dynamics 365", "SAP", "Adobe Campaign", "Adobe", "Oracle", "Braze", "Klaviyo", "Brevo", "Sendinblue", "Mailchimp", "Zendesk", "Freshdesk", "Intercom", "Shopify", "Magento", "PrestaShop", "Zoho", "Odoo"];
-const MOTIF_INDICE_OUTIL = /(?:^|[^\p{L}])(?:[Cc][Rr][Mm]|[Cc][Dd][Pp]|[Ee][Rr][Pp]|[Oo]util|[Ll]ogiciel|[Pp]lateforme|[Ss]olution|[Rr]outeur|[Tt]icketing|[Ss]ous|[Uu]tilise|[Uu]tilisons|[Uu]tilisent|[Éé]quipés de|[Éé]quipé de)\s*:?\s+(\p{Lu}[\p{L}\d&.-]{1,24}(?:\s\p{Lu}[\p{L}\d&.-]{1,24})?)/gu;
-const MOTS_COMMUNS = new Set(["objectif", "nous", "on", "le", "la", "les", "un", "une", "des", "notre", "nos", "et", "mais", "pour", "avec", "sans", "depuis", "programme", "membres", "clients", "enseigne", "crm", "ia", "il", "elle", "ils", "ce", "cette", "ces", "je", "tous", "toutes", "france", "paris", "excel"]);
+const OUTILS_CONNUS = ["Microsoft Dynamics 365", "Salesforce Marketing Cloud", "Salesforce", "HubSpot", "Microsoft Dynamics", "Dynamics 365", "SAP", "Adobe Campaign", "Adobe", "Oracle", "Braze", "Klaviyo", "Brevo", "Sendinblue", "Mailchimp", "Zendesk", "Freshdesk", "Intercom", "Shopify", "Magento", "PrestaShop", "Zoho", "Odoo"];
+const MOTIF_INDICE_OUTIL = /(?:^|[^\p{L}])(?:[Cc][Rr][Mm]|[Cc][Dd][Pp]|[Ee][Rr][Pp]|[Oo]util|[Ll]ogiciel|[Pp]lateforme|[Ss]olution|[Rr]outeur|[Tt]icketing|[Ss]ous|[Uu]tilise|[Uu]tilisons|[Uu]tilisent|[Éé]quipés de|[Éé]quipé de)\s*:?\s+(\p{Lu}[^\s,;:!?()«»"<>]{1,30})(?:\s(\p{Lu}[^\s,;:!?()«»"<>]{1,30}))?/gu;
+// Un nom d'outil : lettres, chiffres, « & », « + », « - ». Ni point, ni @, ni apostrophe : pas d'email, de domaine ni de mot tronqué.
+const MOTIF_NOM_OUTIL = /^\p{Lu}[\p{L}\d&+-]*$/u;
+// Seconds mots acceptés (« Selligent Marketing ») ; tout autre second mot en majuscule évoque un nom de personne : rien n'est repris.
+const SECONDS_MOTS_OUTIL = new Set(["cloud", "campaign", "marketing", "commerce", "service", "sales", "dynamics", "experience", "engage", "journey", "analytics", "studio", "suite", "hub", "desk", "connect", "platform", "data", "customer", "cx", "crm", "cdp", "one", "plus", "pro", "business", "enterprise", "loyalty", "manager", "automation", "interaction", "insights"]);
+const MOTS_COMMUNS = new Set(["objectif", "objectifs", "nous", "on", "le", "la", "les", "un", "une", "des", "du", "de", "au", "aux", "notre", "nos", "votre", "vos", "leur", "leurs", "son", "sa", "ses", "mon", "ma", "mes", "et", "ou", "mais", "donc", "car", "pour", "avec", "sans", "depuis", "dans", "sur", "chez", "par", "programme", "membres", "clients", "enseigne", "crm", "ia", "il", "elle", "ils", "elles", "ce", "cet", "cette", "ces", "je", "tu", "vous", "tous", "toutes", "tout", "toute", "france", "paris", "excel", "beaucoup", "actuellement", "aujourd'hui", "chaque", "plusieurs", "certains", "aucun", "aucune", "quelques", "the", "our", "we", "and", "with", "goal"]);
 
 const MOTIFS_OBJECTIF = [
-  /\bobjectifs?\s*(?:principal|prioritaire)?\s*(?::|=|–|-|est de|est d'|serait de|serait d'|de |d')\s*(.+)/i,
+  /\bobjectifs?(?:[\s-]+(?:principal|principaux|prioritaires?|cl[ée]s?|majeurs?|premiers?))?\s*(?::|=|–|—|-|est de|est d'|sont de|serait de|serait d'|de |d')\s*(.+)/i,
   /(?:^|[^\p{L}])(?:nous voulons|nous voudrions|on veut|on voudrait|nous souhaitons|on souhaite|nous aimerions|on aimerait|notre but est de|le but est de|nous cherchons à|on cherche à|l'enjeu est de)\s+(.+)/iu
 ];
 
-// Un extrait n'est jamais repris s'il contient un lien, des coordonnées, un montant, un devis, un TJM ou le nom de Simo.
-const MOTIF_EXTRAIT_INTERDIT = /https?:|www\.|\S\s*(?:@|\(at\)|\[at\])\s*\S|(?:\+\d{1,3}[\s.-]?)?\(?0?\d\)?(?:[\s.-]?\d{2}){4}|\d[\d\s.,]*\s?(?:k\s?€|m\s?€|€|euros?\b|\$|dollars?\b)|\b(?:devis|tjm|simo)\b/i;
+// Un extrait du texte du visiteur (objectif, nom d'outil) n'est jamais repris s'il contient un lien, des coordonnées
+// (email, téléphone, adresse), un montant, un devis, un TJM, le prénom de Simo ou une injure.
+const MOTIF_EXTRAIT_INTERDIT = /https?:|www\.|\b(?:javascript|data|vbscript|file|mailto|tel|sms):|[\p{L}\d-]\.(?:fr|com|net|org|io|ai|eu|co|be|ch|ca|de|uk|info|biz|app|dev|test|shop|store|online|site|tech)(?![\p{L}\d])|\S\s*(?:@|\(at\)|\[at\])\s*\S|(?:\+\d{1,3}[\s.-]?)?\(?0?\d\)?(?:[\s.-]?\d{2}){4}|\b\d{1,4}(?:\s?(?:bis|ter))?,?\s+(?:rue|avenue|av|boulevard|bd|place|allée|allee|impasse|chemin|quai|route|cours|square|passage|faubourg|voie|résidence|residence|lieu-dit)\b|[€$£]|\b(?:eur|euros?|usd|dollars?|gbp|chf)\b|\b(?:devis|tjm|simo)\b/iu;
+const MOTIF_CODE_POSTAL = /\b\d{5}\s+\p{Lu}/u;
+const MOTIF_INJURE = /\b(?:cons?|connes?|connards?|connasses?|abrutie?s?|idiote?s?|imbeciles?|debiles?|cretine?s?|merdes?|merdiques?|putains?|putes?|salauds?|salopes?|encules?|enculer|enfoires?|batards?|bouffons?|fdp|ntm|fuck|fucking|shit|bitch|asshole|stupid)\b/;
+
+function extraitAutorise(texte) {
+  return !MOTIF_EXTRAIT_INTERDIT.test(texte) && !MOTIF_CODE_POSTAL.test(texte) && !MOTIF_INJURE.test(normaliser(texte));
+}
 
 function nettoyerExtrait(texte) {
-  if (MOTIF_EXTRAIT_INTERDIT.test(texte)) return "";
-  return texte
+  if (!extraitAutorise(texte)) return "";
+  const propre = texte
+    .replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1\s*>/gi, " ")
     .replace(/<[^>]*>/g, " ")
     .replace(/[<>{}\[\]`*_#|\\]/g, " ")
     .replace(/\s+/g, " ")
     .trim();
+  return extraitAutorise(propre) ? propre : "";
 }
 
+// Nom d'outil trouvé après un indice : coupé à la fin de la phrase ; refusé s'il ressemble à un nom de personne,
+// à un email ou à un domaine.
+function nomOutil(premier, second) {
+  const phraseFinie = /[.…]$/.test(premier);
+  const mot1 = premier.replace(/[.…]+$/, "");
+  if (!MOTIF_NOM_OUTIL.test(mot1)) return "";
+  if (!second || phraseFinie) return mot1;
+  const mot2 = second.replace(/[.…]+$/, "");
+  if (SECONDS_MOTS_OUTIL.has(mot2.toLowerCase()) && MOTIF_NOM_OUTIL.test(mot2)) return mot1 + " " + mot2;
+  return MOTS_COMMUNS.has(normaliser(mot2)) ? mot1 : "";
+}
+
+// Séparateurs de milliers : « 1 200 000 », « 1.200.000 », « 1,200,000 ». Avec une unité, « 1,500 million » vaut 1,5 million.
 function lireNombre(brut, unite) {
   let chiffres = brut.replace(/[   ]/g, "");
-  if (/^\d{1,3}(\.\d{3})+$/.test(chiffres)) chiffres = chiffres.replace(/\./g, "");
+  const unSeulGroupe = /^\d{1,3}[.,]\d{3}$/.test(chiffres);
+  if (/^\d{1,3}([.,])\d{3}(\1\d{3})*$/.test(chiffres) && !(unite && unSeulGroupe)) chiffres = chiffres.replace(/[.,]/g, "");
   let n = Number.parseFloat(chiffres.replace(",", "."));
   if (unite === "m" || (unite || "").startsWith("million")) n *= 1e6;
   else if (unite === "k" || unite === "mille" || (unite || "").startsWith("millier")) n *= 1e3;
   return Number.isFinite(n) ? n : null;
 }
 
+// « 1,25 M » quand le nombre tombe juste en millions (2 décimales au plus), sinon tous les chiffres (« 1 234 567 ») :
+// la base reste celle du visiteur et le calcul reste exact.
 function formaterNombre(n) {
-  if (n >= 1e6) return String(Math.round(n / 1e5) / 10).replace(".", ",") + " M";
-  return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+  const entier = Math.round(n);
+  const centiemesDeMillion = entier / 1e4;
+  if (entier >= 1e6 && Number.isInteger(centiemesDeMillion)) return String(centiemesDeMillion / 100).replace(".", ",") + " M";
+  return String(entier).replace(/\B(?=(\d{3})+(?!\d))/g, " ");
 }
 
 function quantite(n, nom) {
-  if (n >= 1e6) return formaterNombre(n) + (/^[aeiouy]/.test(normaliser(nom)) ? " d'" : " de ") + nom;
-  return formaterNombre(n) + " " + nom;
+  const nombre = formaterNombre(n);
+  if (!nombre.endsWith(" M")) return nombre + " " + nom;
+  return nombre + (/^[aeiouy]/.test(normaliser(nom)) ? " d'" : " de ") + nom;
 }
 
 function listeFr(elements) {
@@ -442,13 +498,28 @@ function listeFr(elements) {
   return elements.slice(0, -1).join(", ") + " et " + elements[elements.length - 1];
 }
 
+function finDePhrase(texte) {
+  return /[.…]$/.test(texte) ? texte : texte + ".";
+}
+
+function secteurNommeEnPremier(texte, secteurs) {
+  let choix = null;
+  let premierePosition = Infinity;
+  for (const [libelle, motsCles] of secteurs) {
+    for (const mot of motsCles) {
+      const position = positionMotCle(texte, mot);
+      if (position >= 0 && position < premierePosition) { premierePosition = position; choix = libelle; }
+    }
+  }
+  return choix;
+}
+
 function reperer(description) {
   const texte = normaliser(description);
-  const reperes = { secteur: null, base: null, inactifs: null, outils: [], objectif: null };
+  const reperes = { secteur: null, base: null, inactifs: null, outils: [], objectif: null, objectifEcarte: false };
 
-  for (const [libelle, motsCles] of SECTEURS) {
-    if (motsCles.some((mot) => motCleTrouve(texte, mot))) { reperes.secteur = libelle; break; }
-  }
+  const texteSecteurs = texte.replace(/\bcommerce electronique\b/g, "e-commerce").replace(EXPRESSIONS_FIGEES, " ");
+  reperes.secteur = secteurNommeEnPremier(texteSecteurs, SECTEURS) || secteurNommeEnPremier(texteSecteurs, SECTEURS_PAR_DEFAUT);
 
   const base = texte.match(MOTIF_BASE);
   if (base) {
@@ -458,8 +529,11 @@ function reperer(description) {
 
   for (const m of texte.matchAll(MOTIF_POURCENT)) {
     const valeur = Number.parseFloat(m[1].replace(",", "."));
-    const autour = texte.slice(Math.max(0, m.index - 40), m.index + m[0].length + 40);
-    if (valeur > 0 && valeur <= 100 && SIGNES_INACTIVITE.test(autour)) {
+    if (!(valeur > 0 && valeur <= 100)) continue;
+    const apres = texte.slice(m.index + m[0].length, m.index + m[0].length + 60);
+    const debut = m.index + m[0].indexOf(m[1]);
+    const avant = texte.slice(Math.max(0, debut - 40), debut);
+    if (MOTIF_INACTIFS_APRES.test(apres) || MOTIF_INACTIFS_AVANT.test(avant)) {
       reperes.inactifs = { pct: m[1].replace(".", ","), valeur };
       if (reperes.base) reperes.inactifs.libelle = quantite(reperes.base.n * valeur / 100, reperes.base.nom);
       break;
@@ -468,23 +542,24 @@ function reperer(description) {
 
   const trouves = [];
   const ajouterOutil = (nom, position) => {
-    const propre = nom.replace(/[^\p{L}\d&. -]/gu, "").replace(/[.\s]+$/, "").trim().slice(0, 30);
-    const cle = propre.toLowerCase();
-    if (propre.length < 2 || MOTS_COMMUNS.has(cle.split(" ")[0])) return;
+    const cle = nom.toLowerCase();
+    if (nom.length < 2 || MOTS_COMMUNS.has(normaliser(cle.split(" ")[0])) || !extraitAutorise(nom)) return;
     if (trouves.some((o) => o.nom.toLowerCase().includes(cle) || cle.includes(o.nom.toLowerCase()))) return;
-    trouves.push({ nom: propre, position });
+    trouves.push({ nom, position });
   };
   for (const nom of OUTILS_CONNUS) {
     const m = new RegExp("(^|[^\\p{L}])" + nom.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "($|[^\\p{L}])", "iu").exec(description);
     if (m) ajouterOutil(nom, m.index);
   }
-  for (const m of description.matchAll(MOTIF_INDICE_OUTIL)) ajouterOutil(m[1], m.index);
+  for (const m of description.matchAll(MOTIF_INDICE_OUTIL)) ajouterOutil(nomOutil(m[1], m[2]), m.index);
   reperes.outils = trouves.sort((a, b) => a.position - b.position).slice(0, 3).map((o) => o.nom);
 
   for (const motif of MOTIFS_OBJECTIF) {
     const m = description.match(motif);
     if (!m) continue;
-    let objectif = nettoyerExtrait(m[1].split(/[.!?](?:\s|$)|\n/)[0]).replace(/[\s,;:–-]+$/, "");
+    const phrase = m[1].split(/[.!?](?:\s|$)|\n/)[0];
+    let objectif = nettoyerExtrait(phrase).replace(/[\s,;:–-]+$/, "");
+    if (!objectif && phrase.trim()) { reperes.objectifEcarte = true; continue; }
     if (objectif.length > 120) objectif = objectif.slice(0, 120).replace(/\s+\S*$/, "") + "…";
     if (objectif.length >= 4) {
       reperes.objectif = /^\p{Lu}\p{Lu}/u.test(objectif) ? objectif : objectif.charAt(0).toLowerCase() + objectif.slice(1);
@@ -510,7 +585,7 @@ function personnaliser(situation, reperes) {
   const c = { ...situation.cadrage };
   const outils = listeFr(reperes.outils);
   const contexte = [reperes.secteur ? "Secteur " + reperes.secteur : "", reperes.base ? reperes.base.libelle : ""].filter(Boolean).join(", ");
-  const finObjectif = reperes.objectif ? " Objectif annoncé : " + reperes.objectif + "." : "";
+  const finObjectif = reperes.objectif ? " Objectif annoncé : " + finDePhrase(reperes.objectif) : "";
 
   if (situation.id === "inactifs" && reperes.inactifs && reperes.base) {
     c.enjeu = (reperes.secteur ? "Secteur " + reperes.secteur + " : " : "") + reperes.base.libelle + " dont " + reperes.inactifs.pct + " % d'inactifs, soit environ " + reperes.inactifs.libelle + " à réactiver" + (reperes.objectif ? "." + finObjectif : " sans brader la marge.");
@@ -526,8 +601,12 @@ function personnaliser(situation, reperes) {
   const manquants = [];
   if (!reperes.base) manquants.push("la taille de votre base");
   if (!reperes.outils.length && !/outil/.test(c.a_confirmer)) manquants.push("votre outil CRM");
-  if (!reperes.objectif) manquants.push("votre objectif principal");
-  if (manquants.length) c.a_confirmer = listeFr(manquants) + " (non précisé" + (manquants.length > 1 ? "s" : "") + " dans votre texte) ; " + c.a_confirmer;
+  if (!reperes.objectif && !reperes.objectifEcarte) manquants.push("votre objectif principal");
+  const ajouts = [];
+  if (manquants.length) ajouts.push(listeFr(manquants) + (manquants.length > 1 ? " (non précisés" : manquants[0].startsWith("la ") ? " (non précisée" : " (non précisé") + " dans votre texte)");
+  // Objectif écarté par le filtre (montant, coordonnées, lien…) : il existe, il n'est simplement pas recopié.
+  if (!reperes.objectif && reperes.objectifEcarte) ajouts.push("votre objectif principal (non repris ici)");
+  if (ajouts.length) c.a_confirmer = ajouts.join(" ; ") + " ; " + c.a_confirmer;
   return c;
 }
 
@@ -553,12 +632,17 @@ function normaliser(texte) {
   return texte.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[’`]/g, "'");
 }
 
-// Un mot-clé doit commencer un mot (« cout » trouve « coûtent », pas « écouter ») ;
-// précédé de « = », il doit être un mot entier (« roi » ne trouve ni « trois » ni « croissance »).
-function motCleTrouve(texte, motCle) {
+// Position d'un mot-clé dans le texte (-1 s'il n'y est pas). Un mot-clé doit commencer un mot (« cout » trouve « coûtent »,
+// pas « écouter ») ; précédé de « = », il doit être un mot entier (« roi » ne trouve ni « trois » ni « croissance »).
+function positionMotCle(texte, motCle) {
   const entier = motCle.startsWith("=");
   const mot = normaliser(entier ? motCle.slice(1) : motCle).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  return new RegExp("(^|[^a-z0-9])" + mot + (entier ? "($|[^a-z0-9])" : "")).test(texte);
+  const m = new RegExp("(^|[^a-z0-9])" + mot + (entier ? "($|[^a-z0-9])" : "")).exec(texte);
+  return m ? m.index + m[1].length : -1;
+}
+
+function motCleTrouve(texte, motCle) {
+  return positionMotCle(texte, motCle) >= 0;
 }
 
 function situationLaPlusProche(description) {
@@ -637,7 +721,7 @@ function afficherReperes(reperes) {
   const elements = decrireReperes(reperes || { outils: [] });
   const titre = document.createElement("strong");
   titre.textContent = TEXTES.reperesTitre;
-  blocReperes.replaceChildren(titre, document.createTextNode(typographie(elements.length ? majuscule(elements.join(" · ")) + "." : TEXTES.rienRepere)));
+  blocReperes.replaceChildren(titre, document.createTextNode(typographie(elements.length ? finDePhrase(majuscule(elements.join(" · "))) : TEXTES.rienRepere)));
   blocReperes.hidden = false;
 }
 

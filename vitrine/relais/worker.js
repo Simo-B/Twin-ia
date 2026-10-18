@@ -203,7 +203,8 @@ export default {
     } catch {
       return repondre(400, { erreur: "invalide" }, cors);
     }
-    const description = typeof corps?.description === "string" ? corps.description.trim() : "";
+    // Texte normalisé AVANT le contrôle de longueur : en NFKC, un seul caractère peut se déployer en plusieurs.
+    const description = typeof corps?.description === "string" ? preparerTexteVisiteur(corps.description).trim() : "";
     if (description.length < MIN_CARACTERES) return repondre(400, { erreur: "trop_court" }, cors);
     if (description.length > MAX_CARACTERES) return repondre(400, { erreur: "trop_long" }, cors);
 
@@ -250,7 +251,7 @@ export default {
           max_tokens: MAX_TOKENS_SORTIE,
           system: CONSIGNES,
           output_config: { effort: "low", format: { type: "json_schema", schema: SCHEMA } },
-          messages: [{ role: "user", content: `<description_visiteur>\n${preparerTexteVisiteur(description)}\n</description_visiteur>` }]
+          messages: [{ role: "user", content: `<description_visiteur>\n${description}\n</description_visiteur>` }]
         }),
         signal: AbortSignal.timeout(DELAI_API_MS)
       });

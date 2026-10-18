@@ -1,4 +1,4 @@
-> Textes générés par IA (twin de Simo) et **validés par Simo le 14/10** pour la mise en ligne en mode secours. Les éléments entre {{ }} sont des espaces réservés à compléter.
+> Textes générés par IA (twin de Simo) et **validés par Simo le 14/10** pour la mise en ligne en mode secours, sauf les textes marqués *(18/10, à valider par Simo)* : ils accompagnent le brouillon personnalisé du 18/10 et attendent la relecture de Simo. Les éléments entre {{ }} sont des espaces réservés à compléter.
 
 # Textes de la page vitrine « Mini-cadrage IA »
 
@@ -24,13 +24,13 @@
 
 ### Bloc réponse
 - **Étiquette, IA en direct** : Réponse générée par IA
-- **Étiquette, mode secours** *(version du 18/10 : brouillon personnalisé)* : Brouillon généré automatiquement à partir de votre texte
-- **Explication, mode secours (IA pas encore activée)** : L'IA en direct n'est pas encore activée. Ce brouillon est généré automatiquement : il combine la situation type la plus proche avec les éléments repérés dans votre texte.
-- **Explication, mode secours (IA indisponible)** : L'IA en direct est momentanément indisponible (limite du jour atteinte ou incident). Ce brouillon est généré automatiquement : il combine la situation type la plus proche avec les éléments repérés dans votre texte.
-- **Explication, autre situation choisie** : Brouillon recalculé pour cette situation type, avec les éléments repérés dans votre texte.
-- **Éléments repérés** : Repéré dans votre texte : (secteur, base, inactifs, outils, objectif, selon ce que contient le texte du visiteur)
-- **Rien de repéré** : Aucun élément précis repéré (secteur, taille de base, outil, objectif). Ajoutez-les pour un brouillon plus précis.
-- **Sous la réponse, mode secours** : Brouillon généré automatiquement, non relu par Simo. Chiffres et pistes à valider avec vos données.
+- **Étiquette, mode secours** *(18/10, à valider par Simo)* : Brouillon généré automatiquement à partir de votre texte
+- **Explication, mode secours (IA pas encore activée)** *(18/10, à valider par Simo)* : L'IA en direct n'est pas encore activée. Ce brouillon est généré automatiquement : il combine la situation type la plus proche avec les éléments repérés dans votre texte.
+- **Explication, mode secours (IA indisponible)** *(18/10, à valider par Simo)* : L'IA en direct est momentanément indisponible (limite du jour atteinte ou incident). Ce brouillon est généré automatiquement : il combine la situation type la plus proche avec les éléments repérés dans votre texte.
+- **Explication, autre situation choisie** *(18/10, à valider par Simo)* : Brouillon recalculé pour cette situation type, avec les éléments repérés dans votre texte.
+- **Éléments repérés** *(18/10, à valider par Simo)* : Repéré dans votre texte : (secteur, base, inactifs, outils, objectif, selon ce que contient le texte du visiteur)
+- **Rien de repéré** *(18/10, à valider par Simo)* : Aucun élément précis repéré (secteur, taille de base, outil, objectif). Ajoutez-les pour un brouillon plus précis.
+- **Sous la réponse, mode secours** *(18/10, à valider par Simo)* : Brouillon généré automatiquement, non relu par Simo. Chiffres et pistes à valider avec vos données.
 - **Aucune situation reconnue (mode secours)** *(validé par Simo le 14/10)* : L'IA en direct n'est pas encore activée (ou : est momentanément indisponible). Je n'ai pas reconnu de situation type dans votre description. Choisissez celle qui se rapproche le plus de la vôtre :
 - **Hors sujet (IA en direct)** : Je réponds uniquement sur les programmes fidélité et le CRM. Décrivez votre programme (secteur, nombre de membres, problème principal) pour recevoir un mini-cadrage.
 - **Sous la réponse** : Brouillon indicatif, non relu par Simo. Chiffres et pistes à valider avec vos données.
@@ -43,7 +43,7 @@
 
 ### Comment ça marche
 1. Vous décrivez votre programme fidélité.
-2. Un brouillon de mini-cadrage en 5 lignes est généré à partir de votre texte.
+2. Un brouillon de mini-cadrage en 5 lignes est généré à partir de votre texte. *(18/10, à valider par Simo)*
 3. Si vous voulez aller plus loin, on en parle 15 minutes.
 
 ### Qui est derrière
@@ -56,7 +56,7 @@ Preuves IA :
 4. **Cette page elle-même** : elle s'appuie sur son twin IA (base de connaissances, 4 agents, garde-fous), construit sans coder.
 
 ### Transparence et données (version publiée, mode secours, validée par Simo le 14/10)
-- **Une IA, pas Simo** : Les brouillons de cette page sont générés automatiquement, dans votre navigateur : la page repère dans votre texte le secteur, la taille de votre base, les outils cités et votre objectif, puis les combine avec cinq situations types préparées par IA et relues par Simo. Ce sont des brouillons indicatifs, sans relecture humaine de votre cas.
+- **Une IA, pas Simo** *(18/10, à valider par Simo)* : Les brouillons de cette page sont générés automatiquement, dans votre navigateur : la page repère dans votre texte le secteur, la taille de votre base, les outils cités et votre objectif, puis les combine avec cinq situations types préparées par IA et relues par Simo. Ce sont des brouillons indicatifs, sans relecture humaine de votre cas.
 - **Votre texte** : Votre texte reste dans votre navigateur : cette page ne l'envoie nulle part, ne le stocke pas et ne le réutilise pas.
 - **Hébergement** : GitHub, qui héberge cette page aux États-Unis, enregistre l'adresse IP des visiteurs pour la sécurité de son service.
 - **Contact** : Si vous contactez Simo, vos informations servent uniquement à vous répondre.
@@ -81,15 +81,15 @@ Preuves IA :
 
 ## B. Les 5 mini-cadrages de secours
 
-> **Depuis le 18/10, personnalisés avec le texte du visiteur.** Repérage dans le navigateur, rien n'est envoyé : secteur (liste de secteurs), taille de la base (« 2 M de membres », « 300k clients »…), pourcentage d'inactifs (avec le calcul base × %), outils cités, objectif (« Objectif : … », « nous voulons … »). Ce qui est repris :
+> **Depuis le 18/10, personnalisés avec le texte du visiteur** *(à valider par Simo)*. Repérage dans le navigateur, rien n'est envoyé : secteur (le premier nommé dans le texte ; « retail » et « e-commerce » à défaut), taille de la base telle qu'écrite (« 2 M de membres », « 300k clients », « 1,200,000 members »…), pourcentage d'inactifs (seulement s'il est rattaché à un mot d'inactivité, avec le calcul base × %), outils cités, objectif (« Objectif : … », « nous voulons … »). Ce qui est repris :
 > - **Enjeu** : précédé de « Secteur X, N membres : ». Pour la situation « inactifs », la ligne devient « N membres dont P % d'inactifs, soit environ M à réactiver ». Elle se termine par « Objectif annoncé : … » si le texte en contient un.
 > - **Cas recommandé** : précédé de « Avec [outils cités], ».
 > - **MVP en 4 semaines** : S1 commence par « extraction des données de [outils cités] ».
-> - **À confirmer** : précédé des informations absentes du texte (taille de base, outil CRM, objectif), marquées « non précisé(s) dans votre texte ».
+> - **À confirmer** : précédé des informations absentes du texte (taille de base, outil CRM, objectif), marquées « non précisé(s) dans votre texte ». Un objectif écarté par le filtre est marqué « non repris ici ».
 >
-> Aucun chiffre inventé : seuls les chiffres du visiteur et un calcul simple sont repris. Un objectif contenant un lien, des coordonnées, un montant, un devis, un TJM ou le prénom de Simo n'est jamais repris. Les textes de base ci-dessous restent ceux validés par Simo le 14/10.
+> Aucun chiffre inventé : seuls les chiffres du visiteur et un calcul simple sont repris. Un objectif ou un nom d'outil contenant un lien, des coordonnées (email, téléphone, adresse), un montant, un devis, un TJM, le prénom de Simo ou une injure n'est jamais repris ; un nom d'outil qui ressemble à un nom de personne non plus. Les textes de base ci-dessous restent ceux validés par Simo le 14/10.
 
-Chacun s'affiche avec l'étiquette « Mini-cadrage de secours, préparé à l'avance par IA et relu par Simo ». La page choisit le plus proche grâce aux mots-clés du visiteur. Sans correspondance, elle lui demande de choisir.
+Chacun s'affiche avec l'étiquette « Brouillon généré automatiquement à partir de votre texte ». La page choisit le plus proche grâce aux mots-clés du visiteur. Sans correspondance, elle lui demande de choisir.
 
 ### 1. Beaucoup de membres inactifs
 1. **Enjeu** : une large part de vos membres n'achète plus ; chaque point de réactivation vaut du chiffre d'affaires, à condition de ne pas brader la marge.

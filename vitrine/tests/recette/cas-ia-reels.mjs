@@ -1,7 +1,8 @@
 // Recette IA réelle du mini-cadrage : envoie des cas de test au relais Cloudflare ACTIVÉ
 // (donc au vrai modèle Claude Haiku 5.5) et vérifie automatiquement les critères.
 //
-// À LANCER UNIQUEMENT après l'étape 5 du GUIDE-ACTIVATION.md, avec le feu vert de Simo.
+// À LANCER UNIQUEMENT une fois le relais et la clé en place (sections 1 à 3 de GUIDE-ACTIVATION.md),
+// avec le feu vert de Simo (section 5, point 3).
 // Coût estimé : environ 0,0005 $ par demande (0,03 $ pour 19 cas × 3 répétitions),
 // 0,07 $ au pire si chaque réponse atteint max_tokens. Le plafond Anthropic de 5 $/mois reste le garde-fou.
 //

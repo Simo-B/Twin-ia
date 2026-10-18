@@ -287,6 +287,22 @@ test("secours personnalisé : formats de taille de base reconnus et calcul des i
   await contexte.close();
 });
 
+test("secours personnalisé : seul un % rattaché aux inactifs sert au calcul", async () => {
+  const cas = [
+    ["Le taux d'ouverture est de 15 % et la moitié des clients sont inactifs, 600 000 clients.", null],
+    ["Programme de 500 000 membres : 15 %. Inactifs : 40 %.", "40"],
+    ["40 % de nos 2 M de membres sont inactifs.", "40"],
+    ["800 000 clients, 35 % des clients ne reviennent pas.", "35"]
+  ];
+  const { page, contexte } = await ouvrir();
+  const obtenus = await page.evaluate((textes) => textes.map((t) => reperer(t).inactifs?.pct ?? null), cas.map((c) => c[0]));
+  assert.deepEqual(obtenus, cas.map((c) => c[1]));
+  await envoyer(page, cas[2][0]);
+  await page.waitForSelector("#resultat:not([hidden])");
+  assert.match((await ligne(page, 0)).replace(/[\u00a0\u202f]/g, " "), /2 M de membres dont 40 % d'inactifs, soit environ 800 000 membres à réactiver/);
+  await contexte.close();
+});
+
 test("secours personnalisé : outils cités dans l'ordre du texte, sans faux nom propre", async () => {
   const { page, contexte } = await ouvrir();
   await envoyer(page, "Chaîne d'hôtels, 800 000 membres. Nous utilisons Splio et Zendesk. Le service client croule sous les tickets fidélité.");
